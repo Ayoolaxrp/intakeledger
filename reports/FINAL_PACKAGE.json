@@ -1,0 +1,30 @@
+{
+  "checked_at": "2026-10-23T20:46:11.348280+00:00",
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "documented_demo",
+      "exit_code": 0,
+      "output_tail": "{\n  \"original_status\": \"rejected\",\n  \"replay_status\": \"committed\",\n  \"accepted_rows\": [\n    {\n      \"event_id\": \"synthetic-shipment-001\",\n      \"units\": 12,\n      \"zone\": \"north\"\n    },\n    {\n      \"event_id\": \"synthetic-return-002\",\n      \"units\": -2,\n      \"zone\": \"south\"\n    },\n    {\n      \"event_id\": \"synthetic-shipment-003\",\n      \"units\": 4,\n      \"zone\": \"north\"\n    }\n  ],\n  \"health\": {\n    \"ok\": true,\n    \"schema_version\": 1,\n    \"batches\": 2,\n    \"rows\": 6\n  }\n}\n"
+    },
+    {
+      "check": "build_after_documentation",
+      "exit_code": 0,
+      "output_tail": "dger/contracts.py'\nadding 'intakeledger/errors.py'\nadding 'intakeledger/ledger.py'\nadding 'intakeledger/py.typed'\nadding 'intakeledger/schema.sql'\nadding 'intakeledger-0.1.0.dist-info/METADATA'\nadding 'intakeledger-0.1.0.dist-info/WHEEL'\nadding 'intakeledger-0.1.0.dist-info/entry_points.txt'\nadding 'intakeledger-0.1.0.dist-info/top_level.txt'\nadding 'intakeledger-0.1.0.dist-info/RECORD'\nremoving build\\bdist.win-amd64\\wheel\nSuccessfully built intakeledger-0.1.0.tar.gz and intakeledger-0.1.0-py3-none-any.whl\n* Getting build dependencies for sdist...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building sdist...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building wheel from sdist\n* Getting build dependencies for wheel...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building wheel...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n"
+    },
+    {
+      "check": "package_after_documentation",
+      "exit_code": 0,
+      "output_tail": "{\"wheel_install\": \"passed\", \"site_packages_disabled\": true, \"sdist_rebuild\": \"passed\", \"installed_workflow\": \"passed\"}\n"
+    },
+    {
+      "check": "final_repository_check",
+      "exit_code": 0,
+      "output_tail": "{\n  \"files_checked\": 48,\n  \"findings\": []\n}\n"
+    }
+  ],
+  "artifacts": {
+    "intakeledger-0.1.0-py3-none-any.whl": "e28f9ec4614fc972ee4fede7236034b19c303a73c33fdf3592805623b4183be2",
+    "intakeledger-0.1.0.tar.gz": "8a59c13b8988753d6886bf0b5af4746406274b51e0af71ae07fb03fc93ad6719"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "shipments",
+  "version": 1,
+  "fields": {
+    "event_id": {"type": "string", "min_length": 1, "max_length": 64},
+    "units": {"type": "integer", "min": 0, "max": 1000},
+    "zone": {"type": "string", "enum": ["north", "south"]}
+  }
+}

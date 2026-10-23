@@ -1,0 +1,84 @@
+{
+  "runtime_packages": [],
+  "development_packages": [
+    {
+      "name": "build",
+      "version": "1.6.0",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "license_metadata": "unknown",
+      "redistributed": false
+    },
+    {
+      "name": "coverage",
+      "version": "7.15.4",
+      "license_metadata": "Apache-2.0",
+      "redistributed": false
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "mypy",
+      "version": "1.11.2",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "mypy-extensions",
+      "version": "1.1.0",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "packaging",
+      "version": "26.0",
+      "license_metadata": "Apache-2.0 OR BSD-2-Clause",
+      "redistributed": false
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "pyproject-hooks",
+      "version": "1.2.0",
+      "license_metadata": "unknown",
+      "redistributed": false
+    },
+    {
+      "name": "pytest",
+      "version": "8.3.3",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "ruff",
+      "version": "0.6.5",
+      "license_metadata": "MIT",
+      "redistributed": false
+    },
+    {
+      "name": "setuptools",
+      "version": "79.0.1",
+      "license_metadata": "unknown",
+      "redistributed": false
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.15.0",
+      "license_metadata": "PSF-2.0",
+      "redistributed": false
+    }
+  ],
+  "review_limit": "Installed metadata only; upstream files not audited"
+}

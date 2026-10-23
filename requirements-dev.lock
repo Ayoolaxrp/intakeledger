@@ -1,0 +1,14 @@
+# Exact versions from the inspected local toolchain. No runtime dependencies.
+build==1.6.0
+colorama==0.4.6
+coverage==7.15.4
+iniconfig==2.3.0
+mypy==1.11.2
+mypy-extensions==1.1.0
+packaging==26.0
+pluggy==1.6.0
+pyproject-hooks==1.2.0
+pytest==8.3.3
+ruff==0.6.5
+setuptools==79.0.1
+typing-extensions==4.15.0
