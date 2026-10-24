@@ -204,7 +204,9 @@ def test_quality_rejection_is_persisted_and_not_duplicated(ledger):
     assert all(row["issues"][0]["code"] == "unique" for row in ledger.rows(output))
     with pytest.raises(IntakeError):
         ledger.export(output)
-    assert engine.resume(result["id"])["status"] == "failed"
+    recovered = engine.resume(result["id"])
+    assert recovered["status"] == "failed"
+    assert recovered["stages"][0]["error"] == "quality_rejected"
     assert ledger.health()["batches"] == 2
 
 

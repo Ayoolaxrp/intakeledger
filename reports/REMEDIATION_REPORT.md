@@ -103,3 +103,12 @@ Project licence and rights to grant commercial licences still require owner revi
     would justify changing the recommendation. A projected score alone would not.
 
 No DataFactor submission, agreement, deployment or licence grant has been performed.
+
+## Environmental failure found during final checks
+A direct editable install from the clean source export failed: setuptools/distutils
+interpreted the sandbox temporary path's `{GUID}` as a substitution variable. This
+is a verified tooling/environment failure. The verifier now gives only child
+processes an unbraced temporary path when necessary, and the clean helper creates
+its disposable environment beside the checkout. No dependency warnings are suppressed.
+The failed attempt is not counted as a successful installation; the corrected run
+must pass independently.

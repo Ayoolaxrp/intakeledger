@@ -9,6 +9,7 @@ import platform
 import sqlite3
 import subprocess
 import sys
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -63,6 +64,11 @@ def main():
     environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
     environment["PYTHONUTF8"] = "1"
     environment["PYTHONPATH"] = str(ROOT / "src")
+    # distutils interprets braces in temporary paths as variable substitutions.
+    # Keep this host-specific workaround inside build/test child processes.
+    if any(char in tempfile.gettempdir() for char in "{}"):
+        environment["TEMP"] = str(ROOT.parent)
+        environment["TMP"] = str(ROOT.parent)
     records = []
     for name, command in commands:
         result = subprocess.run(

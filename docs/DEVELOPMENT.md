@@ -64,3 +64,11 @@ regenerate this custom-named hash lock when input versions change. Automatic mer
 configured. Universal resolution is not proof of execution on every platform.
 Tooling references: https://docs.astral.sh/uv/pip/compile/ and
 https://pip.pypa.io/en/stable/cli/pip_install/ (--require-hashes).
+
+## Windows temporary paths
+On hosts whose default temporary directory contains braces, setuptools/distutils
+can fail editable builds with `ValueError: invalid variable`. The verifier redirects
+only its child processes' TEMP/TMP to the repository parent when this occurs. The
+clean-source helper uses a disposable directory beside the checkout. For a manual
+install on such a host, set TEMP and TMP to an existing writable path without braces
+in that terminal. No system-wide configuration change is required.

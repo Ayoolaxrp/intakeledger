@@ -297,7 +297,8 @@ class PipelineEngine:
             )
             connection.execute(
                 "UPDATE stages SET status=CASE WHEN batch_id IS NULL THEN 'pending' ELSE "
-                "status END,error=NULL WHERE execution_id=? AND status!='completed'",
+                "status END,error=CASE WHEN batch_id IS NULL THEN NULL ELSE error END "
+                "WHERE execution_id=? AND status!='completed'",
                 (execution_id,),
             )
             self._event(connection, execution_id, generation, None, "running")

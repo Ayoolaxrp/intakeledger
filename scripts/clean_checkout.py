@@ -15,10 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     records = []
-    with tempfile.TemporaryDirectory(prefix="intakeledger-clean-") as directory:
+    # Some Windows sandbox temporary paths contain braces that break distutils.
+    with tempfile.TemporaryDirectory(prefix="intakeledger-clean-", dir=ROOT.parent) as directory:
         base = Path(directory)
         checkout = base / "checkout"
         checkout.mkdir()
+        build_temp = base / "temp"
+        build_temp.mkdir()
+        child_env = os.environ.copy()
+        child_env["TEMP"] = str(build_temp)
+        child_env["TMP"] = str(build_temp)
         archive = base / "head.zip"
         subprocess.run(
             ["git", "archive", "HEAD", "--format=zip", "-o", str(archive)], cwd=ROOT, check=True
@@ -29,7 +35,9 @@ def main():
         subprocess.run(["git", "init", "--quiet"], cwd=checkout, check=True)
         subprocess.run(["git", "add", "."], cwd=checkout, check=True, capture_output=True)
         environment = base / "environment"
-        subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
+        subprocess.run(
+            [sys.executable, "-m", "venv", str(environment)], env=child_env, check=True, timeout=120
+        )
         python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         commands = [
             (
@@ -68,6 +76,7 @@ def main():
                 encoding="utf-8",
                 errors="replace",
                 timeout=1200,
+                env=child_env,
             )
             records.append(
                 {
