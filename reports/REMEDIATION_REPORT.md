@@ -1,7 +1,9 @@
-# IntakeLedger remediation — 2026-10-24
+# IntakeLedger remediation â€” 2026-10-24
 
-Status: implementation and baseline checks completed; final clean-source verification
-and push are pending. This report will be finalized from actual execution results.
+Status: local remediation and final verification completed. All 14 release checks
+passed on a clean tracked source export in a fresh environment. The authorized push
+failed because Git could not obtain a valid password/token. Changes are committed
+locally and are not claimed as published.
 
 ## Scope and evidence boundary
 
@@ -15,6 +17,11 @@ additional points) were supplied by the owner. They are not an independently
 verified rubric, a score forecast or a promise of an offer. Pipeline/data quality
 gaps are real: original replay had parent links and row hashes but no execution DAG,
 transformation stages, reusable cross-record rules or historical coordinator.
+The supplied Test Coverage score of 62 is not directly comparable to our local
+combined statement/branch metric: the original suite measured 93% locally. No raw
+DataFactor coverage algorithm was available, so that discrepancy cannot be resolved
+by asserting either metric is wrong. Dependency concerns were independently verified
+by actual advisory findings against the old pins.
 The original implementation already had strong transactions and process tests;
 those were preserved rather than assuming the supplied category scores meant absence.
 
@@ -33,7 +40,7 @@ those were preserved rather than assuming the supplied category scores meant abs
 | Vulnerable original development pins | pytest 9.0.3, setuptools 84.1.0 and matching build pin | Actual before/after advisory JSON; no ignored advisories |
 | CI grouped checks and no coverage gate | CI workflow, check_ci.py, Dependabot | Separate formatting/lint/types/tests/coverage/build/package steps, 90% branch-aware floor, YAML/path/SHA/permission validation |
 | Package smoke could select stale artifacts | package_smoke.py exact version selection and installed pipeline | Wheel and source archive checks, bundled SQL, installed library/CLI with site-packages disabled |
-| No reproducible integrated example | pipeline_demo.py, examples/pipeline.json | Real rejected ingest → replay → derived output → lineage → backfill → retry |
+| No reproducible integrated example | pipeline_demo.py, examples/pipeline.json | Real rejected ingest â†’ replay â†’ derived output â†’ lineage â†’ backfill â†’ retry |
 | Current-state documents were stale | README, architecture/spec/development/threat/limits, ADR 0002, provenance, third-party inventory, HANDOFF | Cross-checked against actual API; old audit explicitly marked historical |
 
 All original tests remain. New tests use temporary SQLite databases and synthetic
@@ -65,10 +72,62 @@ contributors, production usage, benchmarks or endorsements were created.
 
 ## Final release verification
 
-Pending: verify the final committed source export in a newly created environment,
-including complete tests, build, installed package and advisory checks. Record exact
-revision and results in CLEAN_CHECKOUT.json and VERIFICATION.json. No hosted CI pass
-or public push is claimed until independently observed.
+Verified revision: `4448785c13a96554343c2fa53b41d41bebbaab9b`. Subsequent changes
+are audit evidence and handoff documentation. The fresh directory was exported by
+`git archive HEAD`; its tracked source/configuration diff remained empty. A new
+standard-library venv hash-installed the lock and editable-installed the package.
+After interrupting the setup wrapper, the final verifier ran directly in that same
+prepared directory/environment. CLEAN_CHECKOUT.json records that procedure explicitly;
+it does not claim an uninterrupted wrapper run.
+
+Command: `python scripts/verify.py --security`, Python 3.11.15 on Windows. All 14
+checks returned zero; exact versions, commands, output summaries and artifact hashes
+are in VERIFICATION.json. The corrected installation succeeded using a temporary path
+without braces. The first failed installation remains in CLEAN_CHECKOUT_BEFORE.json.
+
+| Check | Verified result |
+| --- | --- |
+| Locked dependency inventory | 43 active development distributions, no missing packages, zero third-party runtime dependencies |
+| Ruff lint | Passed |
+| Ruff formatting | Passed |
+| Strict mypy | Passed, all 8 runtime source files |
+| Full behaviour suite | 143 passed in 79.30s; all original 103 tests retained |
+| Combined statement/branch coverage | 94%; 875 statements, 380 branches; enforced minimum 90% |
+| Local repository heuristic | No findings; bounded pattern/AST check, not a comprehensive secret audit |
+| Build | Wheel and source archive built |
+| Installed-package verification | Wheel installed outside checkout; library and CLI ran with site-packages disabled; installed pipeline/lineage worked; source archive rebuilt |
+| Real pipeline demonstration | Passed rejection, replay, projection, ancestry, retry and ordered backfill |
+| pip dependency consistency | No broken requirements |
+| CI configuration | YAML structure, file references, action SHAs, read-only permissions and Dependabot ecosystems passed local checks |
+| Bandit | No findings, no suppressions |
+| Dependency advisory audit | No known vulnerabilities in the hash lock at query time |
+
+Critical exercised failure paths include malformed plans, schema-invalid and rejected
+rows, referential violations, checkpoint rollback, migration rollback, KeyboardInterrupt,
+real worker termination, explicit takeover fencing, concurrent retries, changed retry
+identity and partial backfill recovery. Remaining uncovered paths include uncommon
+CLI errors, defensive guards and module-entry coverage in subprocesses. No coverage
+percentage is used to claim every error or platform has been tested.
+
+The source audit, scans and final diff contain no known secrets or real input records.
+Ownership and legal originality are assumptions for the owner to verify. Hosted CI,
+Linux and Python 3.12 were not executed here. Do not convert local results into a
+DataFactor category score.
+
+Publication attempt: `git -c credential.interactive=never push origin main` returned
+exit 1: `fatal: unable to get password from user`. A preceding dry run failed for
+the same reason; `gh auth status` reported an invalid saved login. Fetch confirmed
+remote main remained `9fd7a196090f0fd634770ee56138cedb5ed176ca` before the attempt.
+No force push, authentication bypass or credential extraction was attempted.
+
+From the owner's authenticated terminal, the remaining publication command is:
+
+```powershell
+git -C "C:\Users\User\Projects\intakeledger" push origin main
+```
+
+After publication, verify the remote SHA and hosted CI before requesting a fresh
+evaluation. No external evaluation request has been sent by this session.
 
 ## Remaining limits and commercial recommendation
 
@@ -102,7 +161,7 @@ Project licence and rights to grant commercial licences still require owner revi
 10. Specific independent failures, written buyer requirements or licensing restrictions
     would justify changing the recommendation. A projected score alone would not.
 
-No DataFactor submission, agreement, deployment or licence grant has been performed.
+No DataFactor submission, agreement, deployment or licence grant has been performed by this session.
 
 ## Environmental failure found during final checks
 A direct editable install from the clean source export failed: setuptools/distutils
@@ -110,5 +169,5 @@ interpreted the sandbox temporary path's `{GUID}` as a substitution variable. Th
 is a verified tooling/environment failure. The verifier now gives only child
 processes an unbraced temporary path when necessary, and the clean helper creates
 its disposable environment beside the checkout. No dependency warnings are suppressed.
-The failed attempt is not counted as a successful installation; the corrected run
-must pass independently.
+The failed attempt is not counted as a successful installation. The corrected clean
+installation and all 14 release checks subsequently passed independently.

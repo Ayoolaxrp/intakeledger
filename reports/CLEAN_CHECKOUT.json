@@ -1,0 +1,133 @@
+{
+  "checked_at": "2026-10-24T20:36:34.268856+00:00",
+  "revision": "4448785c13a96554343c2fa53b41d41bebbaab9b",
+  "source": "git archive HEAD; clean tracked export and new standard-library venv",
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "hash_install",
+      "command": "python -m pip install --require-hashes -r requirements-dev.lock",
+      "exit_code": 0,
+      "evidence": "Corrected clean_checkout.py execution output: hash_install: 0"
+    },
+    {
+      "check": "editable_install",
+      "command": "python -m pip install --no-build-isolation --no-deps -e .",
+      "exit_code": 0,
+      "evidence": "Corrected clean_checkout.py execution output: editable_install: 0"
+    },
+    {
+      "check": "verification",
+      "command": "python scripts/verify.py --security",
+      "exit_code": 0,
+      "evidence": "Executed directly in the same fresh directory/environment after wrapper interruption; all 14 checks passed"
+    }
+  ],
+  "verification": {
+    "checked_at": "2026-10-24T20:35:56.528584+00:00",
+    "python": "3.11.15",
+    "platform": "Windows",
+    "sqlite": "3.53.1",
+    "tools": {
+      "pytest": "9.0.3",
+      "coverage": "7.15.4",
+      "ruff": "0.6.5",
+      "mypy": "1.11.2",
+      "build": "1.6.0",
+      "setuptools": "84.1.0"
+    },
+    "checks": [
+      {
+        "check": "dependencies_inventory",
+        "command": "python scripts/dependencies.py",
+        "exit_code": 0,
+        "output_tail": "{\"runtime_packages\": 0, \"development_packages\": 43, \"missing\": []}\n"
+      },
+      {
+        "check": "lint",
+        "command": "python -m ruff check src tests scripts",
+        "exit_code": 0,
+        "output_tail": "All checks passed!\n"
+      },
+      {
+        "check": "format",
+        "command": "python -m ruff format --check src tests scripts",
+        "exit_code": 0,
+        "output_tail": "24 files already formatted\n"
+      },
+      {
+        "check": "types",
+        "command": "python -m mypy src",
+        "exit_code": 0,
+        "output_tail": "Success: no issues found in 8 source files\n"
+      },
+      {
+        "check": "tests",
+        "command": "python -m coverage run -m pytest -q --tb=short",
+        "exit_code": 0,
+        "output_tail": "........................................................................ [ 50%]\n.......................................................................  [100%]\n143 passed in 79.30s (0:01:19)\n"
+      },
+      {
+        "check": "coverage",
+        "command": "python -m coverage report --fail-under=90",
+        "exit_code": 0,
+        "output_tail": "Name                            Stmts   Miss Branch BrPart  Cover   Missing\n---------------------------------------------------------------------------\nsrc\\intakeledger\\__init__.py        6      0      0      0   100%\nsrc\\intakeledger\\__main__.py        2      2      0      0     0%   1-3\nsrc\\intakeledger\\cli.py           119     20     40      9    79%   84, 86-90, 92-102, 126, 128, 130, 134, 140, 144-145, 158-162\nsrc\\intakeledger\\contracts.py     176      2    102      1    99%   121, 184\nsrc\\intakeledger\\errors.py          4      0      0      0   100%\nsrc\\intakeledger\\ledger.py        230      2     68      4    98%   139, 165->exit, 175->177, 200\nsrc\\intakeledger\\pipeline.py      238     13     96     11    93%   38, 40, 64, 66, 68, 71, 78, 103, 118-120, 407, 476\nsrc\\intakeledger\\quality.py       100      7     74      5    93%   47, 52, 56, 59, 71-73\n---------------------------------------------------------------------------\nTOTAL                             875     46    380     30    94%\n"
+      },
+      {
+        "check": "repository",
+        "command": "python scripts/check_repository.py",
+        "exit_code": 0,
+        "output_tail": "{\n  \"files_checked\": 65,\n  \"findings\": []\n}\n"
+      },
+      {
+        "check": "build",
+        "command": "python -m build --no-isolation",
+        "exit_code": 0,
+        "output_tail": " 'src\\intakeledger.egg-info\\SOURCES.txt'\nrunning bdist_wheel\nrunning build\nrunning build_py\ncreating build\\lib\\intakeledger\ncopying src\\intakeledger\\cli.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\contracts.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\errors.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\ledger.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\pipeline.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\quality.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\__init__.py -> build\\lib\\intakeledger\ncopying src\\intakeledger\\__main__.py -> build\\lib\\intakeledger\nrunning egg_info\nwriting src\\intakeledger.egg-info\\PKG-INFO\nwriting dependency_links to src\\intakeledger.egg-info\\dependency_links.txt\nwriting entry points to src\\intakeledger.egg-info\\entry_points.txt\nwriting top-level names to src\\intakeledger.egg-info\\top_level.txt\nreading manifest file 'src\\intakeledger.egg-info\\SOURCES.txt'\nreading manifest template 'MANIFEST.in'\nwriting manifest file 'src\\intakeledger.egg-info\\SOURCES.txt'\ncopying src\\intakeledger\\migration_2.sql -> build\\lib\\intakeledger\ncopying src\\intakeledger\\py.typed -> build\\lib\\intakeledger\ncopying src\\intakeledger\\schema.sql -> build\\lib\\intakeledger\ninstalling to build\\bdist.win-amd64\\wheel\nrunning install\nrunning install_lib\ncreating build\\bdist.win-amd64\\wheel\ncreating build\\bdist.win-amd64\\wheel\\intakeledger\ncopying build\\lib\\intakeledger\\cli.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\contracts.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\errors.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\ledger.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\migration_2.sql -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\pipeline.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\py.typed -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\quality.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\schema.sql -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\__init__.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\ncopying build\\lib\\intakeledger\\__main__.py -> build\\bdist.win-amd64\\wheel\\.\\intakeledger\nrunning install_egg_info\nCopying src\\intakeledger.egg-info to build\\bdist.win-amd64\\wheel\\.\\intakeledger-0.2.0-py3.11.egg-info\nrunning install_scripts\ncreating build\\bdist.win-amd64\\wheel\\intakeledger-0.2.0.dist-info\\WHEEL\ncreating 'C:\\\\Users\\\\User\\\\Projects\\\\intakeledger-clean-pz_cbnna\\\\checkout\\\\dist\\\\.tmp-4w5yep0n\\\\intakeledger-0.2.0-py3-none-any.whl' and adding 'build\\\\bdist.win-amd64\\\\wheel' to it\nadding 'intakeledger/__init__.py'\nadding 'intakeledger/__main__.py'\nadding 'intakeledger/cli.py'\nadding 'intakeledger/contracts.py'\nadding 'intakeledger/errors.py'\nadding 'intakeledger/ledger.py'\nadding 'intakeledger/migration_2.sql'\nadding 'intakeledger/pipeline.py'\nadding 'intakeledger/py.typed'\nadding 'intakeledger/quality.py'\nadding 'intakeledger/schema.sql'\nadding 'intakeledger-0.2.0.dist-info/METADATA'\nadding 'intakeledger-0.2.0.dist-info/WHEEL'\nadding 'intakeledger-0.2.0.dist-info/entry_points.txt'\nadding 'intakeledger-0.2.0.dist-info/top_level.txt'\nadding 'intakeledger-0.2.0.dist-info/RECORD'\nremoving build\\bdist.win-amd64\\wheel\nSuccessfully built intakeledger-0.2.0.tar.gz and intakeledger-0.2.0-py3-none-any.whl\n* Getting build dependencies for sdist...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building sdist...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building wheel from sdist\n* Getting build dependencies for wheel...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n* Building wheel...\nno previously-included directories found matching 'reports\\checks'\nwarning: no previously-included files matching '__pycache__' found anywhere in distribution\nwarning: no previously-included files matching '*.py[cod]' found anywhere in distribution\nwarning: no previously-included files matching '*.db' found anywhere in distribution\n"
+      },
+      {
+        "check": "package",
+        "command": "python scripts/package_smoke.py",
+        "exit_code": 0,
+        "output_tail": "{\"wheel_install\": \"passed\", \"site_packages_disabled\": true, \"sdist_rebuild\": \"passed\", \"installed_workflow\": \"passed\"}\n"
+      },
+      {
+        "check": "pipeline_demo",
+        "command": "python scripts/pipeline_demo.py",
+        "exit_code": 0,
+        "output_tail": "{\n  \"workflow\": \"passed\",\n  \"accepted_rows\": [\n    {\n      \"event_id\": \"synthetic-shipment-001\",\n      \"units\": 12,\n      \"zone\": \"north\"\n    },\n    {\n      \"event_id\": \"synthetic-return-002\",\n      \"units\": -2,\n      \"zone\": \"south\"\n    },\n    {\n      \"event_id\": \"synthetic-shipment-003\",\n      \"units\": 4,\n      \"zone\": \"north\"\n    }\n  ],\n  \"backfill_partitions\": 2,\n  \"health\": {\n    \"ok\": true,\n    \"schema_version\": 2,\n    \"execution_states\": {\n      \"completed\": 4\n    },\n    \"batches\": 8,\n    \"rows\": 24\n  }\n}\n"
+      },
+      {
+        "check": "pip_check",
+        "command": "python -m pip check",
+        "exit_code": 0,
+        "output_tail": "No broken requirements found.\n"
+      },
+      {
+        "check": "ci_configuration",
+        "command": "python scripts/check_ci.py",
+        "exit_code": 0,
+        "output_tail": "CI structure, local file references, permissions and pinned actions validated\n"
+      },
+      {
+        "check": "bandit",
+        "command": "python -m bandit -r src -q -f json -o reports/BANDIT.json",
+        "exit_code": 0,
+        "output_tail": ""
+      },
+      {
+        "check": "dependencies",
+        "command": "python -m pip_audit --disable-pip --require-hashes --format json --output reports/PIP_AUDIT.json -r requirements-dev.lock --progress-spinner off",
+        "exit_code": 0,
+        "output_tail": "No known vulnerabilities found\n"
+      }
+    ],
+    "security_requested": true,
+    "all_requested_passed": true,
+    "artifacts": {
+      "intakeledger-0.2.0-py3-none-any.whl": "4ddca67d8d6365a8f3a334649229b790bda7acd780d859998a3cb654af9ecdf0",
+      "intakeledger-0.2.0.tar.gz": "fc757ae2288a1de7fa1a8b9eeab434e4e84c39e5bf139d66f81baa04bea307df"
+    }
+  },
+  "procedure_note": "The wrapper was interrupted after successful setup; final verification was run directly in the prepared environment. This is not a claim that the wrapper completed uninterrupted."
+}
