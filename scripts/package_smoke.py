@@ -6,14 +6,16 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    wheel = next((ROOT / "dist").glob("intakeledger-*.whl"))
-    archive = next((ROOT / "dist").glob("intakeledger-*.tar.gz"))
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    wheel = ROOT / "dist" / f"intakeledger-{version}-py3-none-any.whl"
+    archive = ROOT / "dist" / f"intakeledger-{version}.tar.gz"
     with tempfile.TemporaryDirectory(prefix="intakeledger-package-") as directory:
         base = Path(directory)
         target = base / "installed"
@@ -65,7 +67,7 @@ def main():
         environment["PYTHONUTF8"] = "1"
         script = """
 import json
-from intakeledger import Contract, Ledger
+from intakeledger import Contract, Ledger, Pipeline, PipelineEngine
 ledger = Ledger.initialize("installed.db")
 ledger.register(Contract.from_dict({"name":"smoke","version":1,
                                    "fields":{"id":{"type":"integer"}}}))
@@ -73,6 +75,13 @@ batch = ledger.ingest(b'{"id":1}', source="package", key="one",
                       contract_name="smoke", contract_version=1)
 if ledger.export(batch["id"]) != [{"id":1}]:
     raise RuntimeError("Installed export failed")
+pipeline = Pipeline.from_dict({"name":"smoke","version":1,"stages":[
+    {"name":"check","operation":"replay","contract":{"name":"smoke","version":1}}]})
+execution = PipelineEngine(ledger).run(pipeline, batch["id"], "pipeline")
+if execution["status"] != "completed":
+    raise RuntimeError("Installed pipeline failed")
+if len(ledger.lineage(execution["stages"][0]["batch_id"])["nodes"]) != 2:
+    raise RuntimeError("Installed lineage failed")
 print(json.dumps(ledger.health()))
 """
         result = subprocess.run(
@@ -84,7 +93,7 @@ print(json.dumps(ledger.health()))
             check=True,
         )
         health = json.loads(result.stdout)
-        if not health["ok"] or health["rows"] != 1:
+        if not health["ok"] or health["rows"] != 2:
             raise RuntimeError("Installed ledger health failed")
         cli = subprocess.run(
             [sys.executable, "-S", "-m", "intakeledger", "--db", "installed.db", "health"],

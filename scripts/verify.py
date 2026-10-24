@@ -27,21 +27,31 @@ def main():
         ("format", ["-m", "ruff", "format", "--check", "src", "tests", "scripts"]),
         ("types", ["-m", "mypy", "src"]),
         ("tests", ["-m", "coverage", "run", "-m", "pytest", "-q", "--tb=short"]),
-        ("coverage", ["-m", "coverage", "report"]),
+        ("coverage", ["-m", "coverage", "report", "--fail-under=90"]),
         ("repository", ["scripts/check_repository.py"]),
         ("build", ["-m", "build", "--no-isolation"]),
         ("package", ["scripts/package_smoke.py"]),
+        ("pipeline_demo", ["scripts/pipeline_demo.py"]),
+        ("pip_check", ["-m", "pip", "check"]),
+        ("ci_configuration", ["scripts/check_ci.py"]),
     ]
     if args.security:
         commands += [
-            ("bandit", ["-m", "bandit", "-r", "src", "-q"]),
+            (
+                "bandit",
+                ["-m", "bandit", "-r", "src", "-q", "-f", "json", "-o", "reports/BANDIT.json"],
+            ),
             (
                 "dependencies",
                 [
                     "-m",
                     "pip_audit",
                     "--disable-pip",
-                    "--no-deps",
+                    "--require-hashes",
+                    "--format",
+                    "json",
+                    "--output",
+                    "reports/PIP_AUDIT.json",
                     "-r",
                     "requirements-dev.lock",
                     "--progress-spinner",
@@ -81,7 +91,10 @@ def main():
             break
     versions = {}
     for name in ("pytest", "coverage", "ruff", "mypy", "build", "setuptools"):
-        versions[name] = importlib.metadata.version(name)
+        try:
+            versions[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            versions[name] = "unavailable"
     report = {
         "checked_at": datetime.now(UTC).isoformat(),
         "python": platform.python_version(),

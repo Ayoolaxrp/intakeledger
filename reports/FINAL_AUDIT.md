@@ -1,3 +1,7 @@
+> Historical 0.1 audit. The 2026-10-24 remediation and executed results in
+> [REMEDIATION_REPORT.md](REMEDIATION_REPORT.md) supersede current-state claims here.
+> Public visibility was owner-authorized; no licence grant has been approved.
+
 # Final engineering and commercial audit
 Audit date: 2026-10-23. Product: IntakeLedger 0.1.0. Status: locally implemented and verified, not approved for external publication or commercial licensing.
 
