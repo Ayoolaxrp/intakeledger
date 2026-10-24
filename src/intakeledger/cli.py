@@ -13,11 +13,13 @@ from typing import Any, NoReturn
 from .contracts import MAX_CONTRACT_BYTES, MAX_INPUT_BYTES, Contract, parse_json
 from .errors import IntakeError
 from .ledger import Ledger
+from .pipeline import Pipeline, PipelineEngine
 
 EXIT_CODES = {
     "idempotency_conflict": 3,
     "contract_conflict": 3,
     "database_busy": 4,
+    "execution_busy": 4,
     "batch_rejected": 5,
 }
 
@@ -64,6 +66,14 @@ def parser() -> argparse.ArgumentParser:
         child.add_argument("batch_id")
         if command == "rows":
             child.add_argument("--include-payload", action="store_true")
+    for command in ("pipeline", "backfill"):
+        child = commands.add_parser(command)
+        child.add_argument("definition")
+        child.add_argument("batch_ids", nargs="+" if command == "backfill" else 1)
+        child.add_argument("--key", required=True)
+    for command in ("execution", "resume"):
+        commands.add_parser(command).add_argument("execution_id")
+    commands.add_parser("lineage").add_argument("batch_id")
     commands.add_parser("health")
     return result
 
@@ -90,6 +100,28 @@ def _run(args: argparse.Namespace) -> tuple[Any, int]:
         else:
             batch = ledger.replay(args.batch_id, **options)
         return batch, 5 if batch["status"] == "rejected" else 0
+    if args.command in ("pipeline", "backfill", "execution", "resume"):
+        engine = PipelineEngine(ledger)
+        if args.command in ("pipeline", "backfill"):
+            try:
+                definition = _read(args.definition, MAX_CONTRACT_BYTES).decode("utf-8")
+            except UnicodeError as exc:
+                raise IntakeError("invalid_encoding", "Pipeline must contain UTF-8 text") from exc
+            pipeline = Pipeline.from_dict(parse_json(definition))
+            execution = (
+                engine.run(pipeline, args.batch_ids[0], args.key)
+                if args.command == "pipeline"
+                else engine.backfill(pipeline, args.batch_ids, args.key)
+            )
+        else:
+            execution = (
+                engine.resume(args.execution_id)
+                if args.command == "resume"
+                else engine.execution(args.execution_id)
+            )
+        return execution, 0 if execution["status"] == "completed" else 5
+    if args.command == "lineage":
+        return ledger.lineage(args.batch_id), 0
     if args.command == "show":
         return ledger.batch(args.batch_id), 0
     if args.command == "rows":

@@ -39,3 +39,16 @@ Python 3.11+ standard library only at runtime. Development tools are exact-versi
 
 ## Non-goals
 No general JSON Schema engine, nested-field contracts, fuzzy repair, personal-data anonymization, multi-tenant authentication, daemon, dashboard, cloud connector, or distributed database. No claim of exactly-once delivery to external systems.
+
+## Version 0.2 requirements (R11â€“R16)
+R11: Validate a bounded declarative DAG and execute in deterministic topological order.
+R12: Persist execution/stage attempts, UTC timings, output IDs and safe failure reasons.
+R13: Atomically commit each output/checkpoint, preserve completed stages, and fence stale
+workers during explicit recovery. Ordinary retries refuse active executions.
+R14: Enforce reusable duplicate, referential, cross-record and business comparison rules;
+persist quarantine issues under the original exact-fraction quality gate.
+R15: Distinguish ingest/replay/derived batches and export ordered acyclic ancestry including
+reference edges and execution links. Preserve existing replay identity.
+R16: Snapshot ordered historical backfills, fail fast, and resume without duplicating completed
+partitions. Full scope, limits and public interfaces are in PIPELINES.md.
+Migration 2 supersedes the earlier fail-on-all-future-schema statement for recognized v1 only.

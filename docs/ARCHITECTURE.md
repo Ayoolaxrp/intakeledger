@@ -39,3 +39,22 @@ IntakeError carries a stable code and a payload-free message. Database busy erro
 Parameterized SQL handles labels. Contract fields never become SQL identifiers. No eval, subprocess, plugin execution, or external connections exist in the runtime package. Source text stays in the database unless an operator requests payload rows or accepted export. File permissions, disk encryption, backups, and retention belong to the operator.
 
 This is a bounded batch engine, not a distributed ingestion service. One writer and brief read operations fit its local use case. See the decision record and threat model for residual risks.
+
+## Version 0.2 pipeline extension
+The legacy intake interfaces are retained. pipeline.py validates bounded dependency graphs,
+owns persisted executions, fail-fast stage progression, generation-fenced recovery and ordered
+backfill coordinators. quality.py supplies reusable uniqueness, reference, group-consistency
+and comparison rules. Schema checks run before quality rules. migration_2.sql adds execution,
+stage, event, origin and edge tables and seeds old replay history. It is applied atomically
+when a recognized v1 ledger opens. Back up before upgrade; downgrade is unsupported.
+
+Each stage completion and output batch share the same ledger writer transaction. The ledger's
+internal batch writer accepts the stage transaction for this composition; ordinary ingestion
+still owns its own transaction. Completed stages survive later failures; failed-stage output
+cannot survive a rolled-back checkpoint. Rejected quality decisions remain inspectable.
+
+Execution keys fingerprint the whole canonical plan and ordered inputs. Explicit resume
+increments a generation to fence older workers at transaction boundaries. No automatic lease
+takeover exists. Batch origins connect outputs to executions/stages; typed ancestry edges
+include reference dependencies. Insert cycles and edge updates are rejected by SQL triggers.
+See PIPELINES.md for state transitions, rule semantics, CLI and limits, and ADR 0002 for tradeoffs.

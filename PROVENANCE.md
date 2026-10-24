@@ -12,3 +12,9 @@ Runtime relies on CPython and its standard library under the Python Software Fou
 Development tools are separately installed, not redistributed as part of the runtime package. THIRD_PARTY.md records their licences and the limits of this review. Keep upstream notices if dependencies are ever redistributed.
 
 Git was initialized locally. On 2026-10-23 the owner authorized a new private GitHub repository and a collaborator invitation for ycent. The owner's existing Git identity from their Ayoolaxrp/elion-dashboard repository was reused locally. No author identity or historical commits were fabricated. Current publication status is recorded in HANDOFF.md. No DataFactor repository submission has been performed.
+
+## Subsequent owner instructions
+The owner authorized publication, verified public visibility and supplied an evaluation, then
+authorized local remediation and genuine focused commits. Earlier private/pending-publication
+notes are historical. No licence was approved. The owner authorized a public push of verified remediation changes on 2026-10-24.
+DataFactor resubmission, contractual acceptance and external deployment are not authorized.

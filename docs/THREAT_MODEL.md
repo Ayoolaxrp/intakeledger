@@ -15,3 +15,13 @@ Assets are source rows, contract definitions, batch decisions, and lineage. The 
 | Database theft or over-retention | Operator-controlled permissions and encrypted disk recommended | No application encryption, retention scheduler, or deletion workflow. |
 
 All bundled examples and tests are synthetic. This build has never connected to customer systems. Use a restricted working directory. Do not execute against hostile SQLite files or allow untrusted parties to choose database paths.
+
+## Pipeline extension boundaries
+Pipeline definitions and rules are untrusted declarative input, bounded by bytes, stages and
+rule counts. No plugin, expression evaluator or shell command is available. Contracts remain
+immutable. References use committed batch snapshots. Execution generations fence stale writers;
+SQLite protects stage output/checkpoint atomicity. Failed exceptions persist safe codes rather
+than exception text or payload. Raw rows and explicit exports remain operator-visible.
+Schema migration 2 is transactional and only upgrades a recognized v1 ledger; back up first.
+Local database owners can remove triggers or forge records. Histories are not signed and query
+results are not paginated. There is no application-level access control or hostile-file sandbox.

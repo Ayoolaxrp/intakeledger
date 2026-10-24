@@ -25,3 +25,12 @@ This review checks dependency declarations and local package metadata, not every
 | typing-extensions | PSF-2.0 | Distribution metadata |
 
 The inventory's unknown metadata fields are resolved by the licence-file review above. setuptools also contains vendored tools with separate notices, including an LGPL-3.0 autocommand component. The development lock is therefore not an assertion that every file inside installed tooling is MIT. Tooling is not copied into this repository or its wheel. Redistributing a whole development environment needs a separate review.
+
+## Version 0.2 tooling update
+The generated requirements-dev.lock supersedes the original version list. It now includes
+security/CI tooling and its transitive environment, all hash pinned. pytest was updated to
+9.0.3 and setuptools to 84.1.0 in response to actual advisory findings. The new dependency
+inventory records installed licence metadata for the resolved environment; missing metadata
+is reported as unknown, not assumed permissive. No third-party packages are vendored into
+the runtime wheel. Redistribution of the complete tooling environment requires separate
+licence review. Scanner tooling adds maintenance dependencies, not runtime dependencies.

@@ -10,3 +10,16 @@ Replay does not repair values. It reinterprets all original rows under another c
 No production deployments, performance benchmarks, user studies, power-loss tests, or external security audit exist. Python 3.11 on Windows is the local validation environment. Linux and other Python versions require CI execution. Hosted CI and DataFactor eligibility remain unverified.
 
 See reports/FINAL_AUDIT.md for executed checks and remaining release blockers. Project licensing and legal ownership require the owner's decision. No deployment or commercial readiness is implied by passing local tests.
+
+## Version 0.2 superseding notes
+Pipeline execution, explicit ancestry, backfill and the four rule categories now exist; the
+earlier statement that business IDs cannot be checked for duplicates is superseded by opt-in
+pipeline uniqueness rules. Ordinary ingestion still does not globally deduplicate events.
+No joins, automatic scheduling, distributed infrastructure, row-mapping table for projections,
+external delivery, retention or history pagination is implemented. Every stage buffers bounded
+records and holds one SQLite writer while processing. Execution/history storage grows until
+operators archive databases. Explicit resume can supersede a live worker between stages;
+operators must investigate first. No automatic abandoned-run detector is present.
+No public project licence has been chosen. The owner authorized public visibility and supplied
+a DataFactor evaluation, but the scoring methodology and a fresh score remain unverified.
+Current verified results and remaining environmental limits are in REMEDIATION_REPORT.md.

@@ -1,0 +1,24 @@
+{
+  "name": "shipments_daily",
+  "version": 1,
+  "stages": [
+    {
+      "name": "revalidate",
+      "operation": "replay",
+      "contract": {"name": "shipments", "version": 2},
+      "rules": {"unique": [["event_id"]]}
+    },
+    {
+      "name": "publish",
+      "operation": "project",
+      "depends_on": ["revalidate"],
+      "input": "revalidate",
+      "fields": ["event_id", "units", "zone"],
+      "contract": {"name": "shipments", "version": 2},
+      "references": {"accepted": "revalidate"},
+      "rules": {
+        "references": [{"fields": ["event_id"], "dataset": "accepted", "target_fields": ["event_id"]}]
+      }
+    }
+  ]
+}

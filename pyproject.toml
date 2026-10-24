@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools==79.0.1"]
+requires = ["setuptools==84.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "intakeledger"
-version = "0.1.0"
+version = "0.2.0"
 description = "Transactional JSONL intake, quarantine, and lineage-preserving replay"
 requires-python = ">=3.11"
 dependencies = []
@@ -17,7 +17,7 @@ intakeledger = "intakeledger.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-intakeledger = ["schema.sql", "py.typed"]
+intakeledger = ["*.sql", "py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -31,6 +31,7 @@ branch = true
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 90
 
 [tool.ruff]
 target-version = "py311"

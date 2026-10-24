@@ -28,7 +28,7 @@ from .contracts import (
 from .errors import IntakeError
 
 APPLICATION_ID = 0x494C4447
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 logger = logging.getLogger(__name__)
 
 
@@ -110,13 +110,33 @@ class Ledger:
             ).fetchall()
             if version == 0 and app_id == 0 and not tables and create:
                 schema = files("intakeledger").joinpath("schema.sql").read_text(encoding="utf-8")
-                for statement in schema.split(";"):
-                    if statement.strip():
-                        connection.execute(statement)
+                self._schema(connection, schema)
+                self._schema(
+                    connection,
+                    files("intakeledger").joinpath("migration_2.sql").read_text(encoding="utf-8"),
+                )
                 connection.execute(f"PRAGMA application_id = {APPLICATION_ID}")
+                connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+            elif version == 1 and app_id == APPLICATION_ID:
+                self._schema(
+                    connection,
+                    files("intakeledger").joinpath("migration_2.sql").read_text(encoding="utf-8"),
+                )
                 connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
             elif version != SCHEMA_VERSION or app_id != APPLICATION_ID:
                 raise IntakeError("incompatible_database", "Unrecognized ledger or schema version")
+
+    @staticmethod
+    def _schema(connection: sqlite3.Connection, script: str) -> None:
+        # executescript implicitly commits; complete_statement keeps migrations atomic.
+        statement = ""
+        for line in script.splitlines(keepends=True):
+            statement += line
+            if sqlite3.complete_statement(statement):
+                connection.execute(statement)
+                statement = ""
+        if statement.strip():
+            raise IntakeError("invalid_migration", "Incomplete schema statement")
 
     @contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
@@ -235,6 +255,37 @@ class Ledger:
         threshold: Fraction,
         parent: str | None,
     ) -> dict[str, Any]:
+        with self._connect() as connection, self._transaction(connection):
+            result = self._write_batch(
+                connection, source, key, contract, rows, source_digest, threshold, parent
+            )
+        logger.info(
+            canonical(
+                {
+                    "event": "batch_recorded",
+                    "batch_id": result["id"],
+                    "row_count": result["row_count"],
+                    "status": result["status"],
+                }
+            )
+        )
+        return result
+
+    def _write_batch(
+        self,
+        connection: sqlite3.Connection,
+        source: str,
+        key: str,
+        contract: Contract,
+        rows: list[PreparedRow],
+        source_digest: str,
+        threshold: Fraction,
+        parent: str | None,
+        *,
+        kind: str | None = None,
+        execution_id: str | None = None,
+        stage: str | None = None,
+    ) -> dict[str, Any]:
         request_digest = hashlib.sha256(
             canonical(
                 {
@@ -245,55 +296,48 @@ class Ledger:
                 }
             ).encode("utf-8")
         ).hexdigest()
-        with self._connect() as connection, self._transaction(connection):
-            previous = connection.execute(
-                "SELECT * FROM batches WHERE source=? AND idempotency_key=?", (source, key)
-            ).fetchone()
-            if previous:
-                if previous["request_digest"] != request_digest:
-                    raise IntakeError(
-                        "idempotency_conflict", "Key was used for a different request"
-                    )
-                return dict(previous)
-            valid = sum(row.value is not None for row in rows)
-            status = (
-                "committed" if Fraction(len(rows) - valid, len(rows)) <= threshold else "rejected"
-            )
-            batch_id = uuid.uuid4().hex
+        previous = connection.execute(
+            "SELECT * FROM batches WHERE source=? AND idempotency_key=?", (source, key)
+        ).fetchone()
+        if previous:
+            if previous["request_digest"] != request_digest:
+                raise IntakeError("idempotency_conflict", "Key was used for a different request")
+            return dict(previous)
+        valid = sum(row.value is not None for row in rows)
+        status = "committed" if Fraction(len(rows) - valid, len(rows)) <= threshold else "rejected"
+        batch_id = uuid.uuid4().hex
+        connection.execute(
+            "INSERT INTO batches VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                batch_id,
+                source,
+                key,
+                request_digest,
+                source_digest,
+                contract.name,
+                contract.version,
+                parent,
+                str(threshold),
+                status,
+                len(rows),
+                valid,
+                datetime.now(UTC).isoformat(),
+            ),
+        )
+        connection.executemany(
+            "INSERT INTO rows VALUES (?, ?, ?, ?, ?, ?)",
+            ((batch_id, row.line, row.raw, row.digest, row.value, row.issues) for row in rows),
+        )
+        connection.execute(
+            "INSERT INTO batch_origins VALUES (?, ?, ?, ?)",
+            (batch_id, kind or ("replay" if parent else "ingest"), execution_id, stage),
+        )
+        if parent:
             connection.execute(
-                "INSERT INTO batches VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    batch_id,
-                    source,
-                    key,
-                    request_digest,
-                    source_digest,
-                    contract.name,
-                    contract.version,
-                    parent,
-                    str(threshold),
-                    status,
-                    len(rows),
-                    valid,
-                    datetime.now(UTC).isoformat(),
-                ),
+                "INSERT INTO batch_edges VALUES (?, ?, ?)", (parent, batch_id, kind or "replay")
             )
-            connection.executemany(
-                "INSERT INTO rows VALUES (?, ?, ?, ?, ?, ?)",
-                ((batch_id, row.line, row.raw, row.digest, row.value, row.issues) for row in rows),
-            )
-            result = dict(
-                connection.execute("SELECT * FROM batches WHERE id=?", (batch_id,)).fetchone()
-            )
-        logger.info(
-            canonical(
-                {
-                    "event": "batch_recorded",
-                    "batch_id": batch_id,
-                    "row_count": len(rows),
-                    "status": status,
-                }
-            )
+        result = dict(
+            connection.execute("SELECT * FROM batches WHERE id=?", (batch_id,)).fetchone()
         )
         return result
 
@@ -377,6 +421,45 @@ class Ledger:
             return {
                 "ok": integrity and references,
                 "schema_version": SCHEMA_VERSION,
+                "execution_states": {
+                    row["status"]: row["n"]
+                    for row in connection.execute(
+                        "SELECT status, COUNT(*) AS n FROM executions "
+                        "GROUP BY status ORDER BY status"
+                    )
+                },
                 "batches": connection.execute("SELECT COUNT(*) FROM batches").fetchone()[0],
                 "rows": connection.execute("SELECT COUNT(*) FROM rows").fetchone()[0],
             }
+
+    def lineage(self, batch_id: str) -> dict[str, Any]:
+        self.batch(batch_id)
+        with self._connect() as connection:
+            nodes = [
+                dict(row)
+                for row in connection.execute(
+                    """
+                WITH RECURSIVE ancestors(id) AS (
+                    SELECT ? UNION SELECT parent_id FROM batch_edges
+                    JOIN ancestors ON child_id=ancestors.id
+                ) SELECT b.id, b.parent_id, b.source_digest, o.kind, o.execution_id, o.stage
+                FROM ancestors a JOIN batches b ON b.id=a.id
+                JOIN batch_origins o ON o.batch_id=b.id ORDER BY b.id
+                """,
+                    (batch_id,),
+                )
+            ]
+            edges = [
+                dict(row)
+                for row in connection.execute(
+                    """
+                WITH RECURSIVE ancestors(id) AS (
+                    SELECT ? UNION SELECT parent_id FROM batch_edges
+                    JOIN ancestors ON child_id=ancestors.id
+                ) SELECT e.* FROM batch_edges e JOIN ancestors a ON e.child_id=a.id
+                ORDER BY e.parent_id,e.child_id,e.kind
+            """,
+                    (batch_id,),
+                )
+            ]
+        return {"batch_id": batch_id, "nodes": nodes, "edges": edges}

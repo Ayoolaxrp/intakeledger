@@ -40,3 +40,27 @@ Do not delete a database to hide an integrity error. Make an offline copy before
 
 ## Contributions
 Add a behaviour test for each changed contract or transaction rule. Keep source formatting compatible with Ruff. Explain consequential changes in a decision record. Use real commits when author identity is configured. Do not backdate, fabricate review activity, or publish this repository without owner approval.
+
+## Version 0.2 reproducible tooling
+Supported package management is pip-compatible requirements, not npm/Poetry. Create an isolated
+venv (without --system-site-packages). Install with
+`python -m pip install --require-hashes -r requirements-dev.lock`, then
+`python -m pip install --no-build-isolation --no-deps -e .`.
+requirements-dev.in declares direct tools; the universal generated lock includes complete
+transitive pins, platform markers and distribution hashes. requirements-security.txt delegates
+to this same lock. There are no third-party runtime dependencies. Build setuptools must match
+the exact pyproject build-system pin.
+
+Run `python scripts/verify.py --security` for full local verification. It includes the real
+pipeline demo, pip check and CI-configuration validation. Coverage enforces 90% combined
+statement/branch measurement, below the original 93% with room for platform/error paths.
+Run `python -m coverage xml` for the XML report. See reports/REMEDIATION_REPORT.md for actual
+execution evidence; the old audit is historical, not the current release gate.
+
+To refresh locks, install uv from its official distribution, run `python scripts/lock.py`,
+review the input/lock diff, hash-install in a clean environment and run the full verifier.
+Keep the build pin consistent. Monthly Dependabot configuration proposes pip/action updates;
+regenerate this custom-named hash lock when input versions change. Automatic merging is not
+configured. Universal resolution is not proof of execution on every platform.
+Tooling references: https://docs.astral.sh/uv/pip/compile/ and
+https://pip.pypa.io/en/stable/cli/pip_install/ (--require-hashes).

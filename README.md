@@ -38,9 +38,17 @@ Rejected batches export nothing. Committed batches export their valid rows in in
 ## Architecture
 The CLI handles bounded files and machine-readable results. Contract validation has no persistence dependencies. The ledger records a batch and its rows in one SQLite transaction. SQLite coordinates concurrent writers. Read [architecture](docs/ARCHITECTURE.md) and [decisions](docs/DECISIONS/0001-local-transactional-ledger.md) for the tradeoffs.
 
+## Durable pipelines and historical backfill
+Version 0.2 adds a persisted dependency-ordered pipeline engine, replay and projection stages,
+opt-in duplicate/reference/consistency/business rules, explicit ancestry graphs, and ordered
+backfill with safe retries and manual crash recovery. Existing intake commands still work.
+Run `python scripts/pipeline_demo.py` after installation for a complete synthetic example.
+See [pipelines](docs/PIPELINES.md) for definitions, CLI commands, states and guarantees, and
+[the remediation report](reports/REMEDIATION_REPORT.md) for verified quality evidence.
+
 ## Development and verification
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.lock
 .\.venv\Scripts\python.exe scripts/verify.py
 ```
 
@@ -58,4 +66,4 @@ Feeds are bounded to 8 MiB, 10,000 rows, and 256 KiB per row. Read [known limita
 ## Provenance and commercial status
 This repository was created with AI assistance for Project Atlas. It has no production users, field performance claims, or fabricated development history. [Provenance](PROVENANCE.md) records ownership assumptions and third-party notices.
 
-The owner has not chosen a project licence. No licence grant is included. Keep the repository private until ownership, licensing, and buyer requirements are confirmed. Research and the [final audit](reports/FINAL_AUDIT.md) distinguish observed checks from unresolved commercial claims. No DataFactor score or payment is promised.
+The owner has not chosen a project licence. No licence grant is included. The owner authorized public visibility. Publication does not grant a project licence; ownership and buyer requirements still need verification. Research and the [final audit](reports/FINAL_AUDIT.md) distinguish observed checks from unresolved commercial claims. No DataFactor score or payment is promised.
