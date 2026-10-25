@@ -23,3 +23,12 @@ operators must investigate first. No automatic abandoned-run detector is present
 No public project licence has been chosen. The owner authorized public visibility and supplied
 a DataFactor evaluation, but the scoring methodology and a fresh score remain unverified.
 Current verified results and remaining environmental limits are in REMEDIATION_REPORT.md.
+
+## Extended audit boundary
+The owner reports 64.3 overall but elected to proceed without the latest category
+breakdown/evaluated SHA. The audit cannot establish current category scores, latest
+framework-specific comments or projected points. Local 94% coverage is a different
+measurement from the evaluator's unknown method. The lock guard evaluates markers
+on its current interpreter; the configured platform/Python CI matrix remains needed.
+History secret scanning, independent security review and legal ownership/licensing
+review are still outside the completed automated checks.

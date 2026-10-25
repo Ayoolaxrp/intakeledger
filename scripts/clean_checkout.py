@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
+def _execute():
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     records = []
     # Some Windows sandbox temporary paths contain braces that break distutils.
@@ -90,7 +90,9 @@ def main():
                 break
         verification_path = checkout / "reports/VERIFICATION.json"
         verification = (
-            json.loads(verification_path.read_text()) if verification_path.is_file() else None
+            json.loads(verification_path.read_text())
+            if records and records[-1]["check"] == "verification" and verification_path.is_file()
+            else None
         )
         if len(records) == len(commands) and records[-1]["exit_code"] == 0:
             for name in ("VERIFICATION.json", "DEPENDENCIES.json", "BANDIT.json", "PIP_AUDIT.json"):
@@ -108,6 +110,28 @@ def main():
         json.dumps(report, indent=2) + "\n", encoding="utf-8"
     )
     return 0 if passed else 1
+
+
+def main():
+    try:
+        return _execute()
+    except (
+        subprocess.TimeoutExpired,
+        subprocess.CalledProcessError,
+        OSError,
+        KeyboardInterrupt,
+    ) as exc:
+        code = 130 if isinstance(exc, KeyboardInterrupt) else 1
+        report = {
+            "checked_at": datetime.now(UTC).isoformat(),
+            "all_passed": False,
+            "verification": None,
+            "error": type(exc).__name__,
+        }
+        (ROOT / "reports/CLEAN_CHECKOUT.json").write_text(
+            json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        )
+        return code
 
 
 if __name__ == "__main__":

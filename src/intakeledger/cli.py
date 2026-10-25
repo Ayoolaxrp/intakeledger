@@ -61,7 +61,7 @@ def parser() -> argparse.ArgumentParser:
         child.add_argument("--contract", required=True, help="Registered contract name")
         child.add_argument("--version", required=True, type=int)
         child.add_argument("--max-invalid", default="0", help="Allowed invalid fraction, 0 to 1")
-    for command in ("show", "rows", "export"):
+    for command in ("show", "rows", "export", "quality"):
         child = commands.add_parser(command)
         child.add_argument("batch_id")
         if command == "rows":
@@ -122,6 +122,8 @@ def _run(args: argparse.Namespace) -> tuple[Any, int]:
         return execution, 0 if execution["status"] == "completed" else 5
     if args.command == "lineage":
         return ledger.lineage(args.batch_id), 0
+    if args.command == "quality":
+        return ledger.quality_summary(args.batch_id), 0
     if args.command == "show":
         return ledger.batch(args.batch_id), 0
     if args.command == "rows":

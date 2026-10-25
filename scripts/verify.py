@@ -16,6 +16,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def run_check(command, environment):
+    try:
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=300,
+        )
+        return result.returncode, result.stdout + result.stderr
+    except subprocess.TimeoutExpired:
+        return 124, "Check exceeded the 300 second timeout"
+    except OSError:
+        return 127, "Check process could not be started"
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--security", action="store_true")
@@ -23,6 +42,7 @@ def main():
     log_dir = ROOT / "reports" / "checks"
     log_dir.mkdir(parents=True, exist_ok=True)
     commands = [
+        ("lock_consistency", ["scripts/check_lock.py"]),
         ("dependencies_inventory", ["scripts/dependencies.py"]),
         ("lint", ["-m", "ruff", "check", "src", "tests", "scripts"]),
         ("format", ["-m", "ruff", "format", "--check", "src", "tests", "scripts"]),
@@ -71,28 +91,18 @@ def main():
         environment["TMP"] = str(ROOT.parent)
     records = []
     for name, command in commands:
-        result = subprocess.run(
-            [sys.executable, *command],
-            cwd=ROOT,
-            env=environment,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=300,
-        )
-        output = result.stdout + result.stderr
+        returncode, output = run_check([sys.executable, *command], environment)
         (log_dir / f"{name}.txt").write_text(output, encoding="utf-8")
         records.append(
             {
                 "check": name,
                 "command": "python " + " ".join(command),
-                "exit_code": result.returncode,
+                "exit_code": returncode,
                 "output_tail": output[-5000:],
             }
         )
-        print(f"{name}: {'PASS' if result.returncode == 0 else 'FAIL'}", flush=True)
-        if result.returncode:
+        print(f"{name}: {'PASS' if returncode == 0 else 'FAIL'}", flush=True)
+        if returncode:
             print(output[-5000:], flush=True)
             break
     versions = {}

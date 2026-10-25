@@ -58,3 +58,14 @@ increments a generation to fence older workers at transaction boundaries. No aut
 takeover exists. Batch origins connect outputs to executions/stages; typed ancestry edges
 include reference dependencies. Insert cycles and edge updates are rejected by SQL triggers.
 See PIPELINES.md for state transitions, rule semantics, CLI and limits, and ADR 0002 for tradeoffs.
+
+## Version 0.2.1 operational inspection and release guards
+Quality summaries read the existing immutable batch/row evidence and count invalid
+rows independently from issue occurrences. Rejection still blocks every otherwise
+valid row. No new persistence or migration is required. Timestamped execution logs
+expose terminal success/failure context using safe codes; the database's execution
+and event records remain authoritative. Offline lock/input/build-pin validation and
+explicit CI gate checks are development boundaries, not runtime dependencies.
+Verifier launch/time-limit failures are persisted as failed evidence; an older green
+report is not a valid substitute for a completed run. See the extended audit and
+current remediation report for scope, tests and environmental limits.

@@ -463,3 +463,28 @@ class Ledger:
                 )
             ]
         return {"batch_id": batch_id, "nodes": nodes, "edges": edges}
+
+    def quality_summary(self, batch_id: str) -> dict[str, Any]:
+        """Count rows separately from issues; rejected batches block every valid row."""
+        with self._connect() as connection:
+            batch = connection.execute("SELECT * FROM batches WHERE id=?", (batch_id,)).fetchone()
+            if batch is None:
+                raise IntakeError("batch_not_found", "Batch does not exist")
+            counts: dict[str, int] = {}
+            for row in connection.execute(
+                "SELECT issues FROM rows WHERE batch_id=? ORDER BY line", (batch_id,)
+            ):
+                for issue in json.loads(row["issues"]):
+                    code = issue["code"]
+                    counts[code] = counts.get(code, 0) + 1
+            valid = batch["valid_count"]
+            return {
+                "batch_id": batch_id,
+                "status": batch["status"],
+                "total_rows": batch["row_count"],
+                "valid_rows": valid,
+                "quarantined_rows": batch["row_count"] - valid,
+                "exportable_rows": valid if batch["status"] == "committed" else 0,
+                "blocked_valid_rows": valid if batch["status"] == "rejected" else 0,
+                "issue_counts": dict(sorted(counts.items())),
+            }

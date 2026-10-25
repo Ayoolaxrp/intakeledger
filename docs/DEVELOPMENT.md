@@ -72,3 +72,21 @@ only its child processes' TEMP/TMP to the repository parent when this occurs. Th
 clean-source helper uses a disposable directory beside the checkout. For a manual
 install on such a host, set TEMP and TMP to an existing writable path without braces
 in that terminal. No system-wide configuration change is required.
+
+## Extended audit verification (0.2.1)
+`python scripts/check_lock.py` checks active exact pins, hash declarations, direct
+input constraints and build-system consistency without network access. It is a CI
+and full-verifier gate. It does not replace the resolver, hash installation or
+advisory audit. Regenerate the lock when changing inputs/build pins; do not edit
+hashes to make a failing install pass. CI validation rejects altered/no-op checks,
+skipped/allowed-failure gates and writable permissions even under `python -O`.
+Verifier subprocess launch/timeout failures now replace prior green evidence with
+failed JSON. Clean-checkout setup failures do not reuse an old bundled verification.
+See reports/EXTENDED_SCORE_AUDIT.md for the pre-change analysis and the dated
+extension in REMEDIATION_REPORT.md for results. Full verification remains
+`python scripts/verify.py --security`.
+
+CI jobs now create a private `.venv` and put its executable directory on GITHUB_PATH
+before hash installation. The lock is intended for an isolated environment; hosted
+runner packages must not be treated as part of its dependency contract. The observed
+Windows 3.12 Dependabot failure still needs a hosted rerun and exact-log diagnosis.

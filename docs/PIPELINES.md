@@ -142,3 +142,13 @@ bounded by the original 8 MiB/10,000-row/256 KiB-row limits and one local writer
 Use filesystem permissions and encrypted disks as appropriate; there is no network
 authentication or database encryption. Direct database owners can bypass triggers.
 Execution histories and ancestor graphs are not paginated or automatically retained.
+
+## Operational summaries (0.2.1)
+`Ledger.quality_summary(batch_id)` and `intakeledger --db intake.db quality BATCH_ID`
+return total, valid, quarantined, exportable and gate-blocked valid row counts,
+plus sorted issue-code counts. One row may have multiple issues. A rejected batch
+has zero exportable rows, even when some rows validate. This query emits no raw
+records or field values and does not change a batch. Stage and terminal execution
+logs now include UTC timestamps; terminal failures include stable reason codes,
+execution ID, stage and generation. Exception messages are excluded. Database
+execution/event records remain authoritative; logs are operational diagnostics.

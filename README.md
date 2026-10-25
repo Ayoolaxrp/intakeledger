@@ -67,3 +67,11 @@ Feeds are bounded to 8 MiB, 10,000 rows, and 256 KiB per row. Read [known limita
 This repository was created with AI assistance for Project Atlas. It has no production users, field performance claims, or fabricated development history. [Provenance](PROVENANCE.md) records ownership assumptions and third-party notices.
 
 The owner has not chosen a project licence. No licence grant is included. The owner authorized public visibility. Publication does not grant a project licence; ownership and buyer requirements still need verification. Research and the [final audit](reports/FINAL_AUDIT.md) distinguish observed checks from unresolved commercial claims. No DataFactor score or payment is promised.
+
+## Quality inspection and release evidence
+Use `python -m intakeledger --db intake.db quality BATCH_ID` for safe row/issue
+aggregates, and `--verbose` for timestamped stage and terminal execution logs.
+The [extended audit](reports/EXTENDED_SCORE_AUDIT.md) distinguishes verified gaps
+from unavailable evaluator details. Release checks now enforce direct-input/build
+lock consistency and reject ineffective CI gates; failed tool launches/timeouts
+produce fresh failed evidence rather than leaving an older green report.

@@ -332,6 +332,17 @@ class PipelineEngine:
                     (_now(), execution_id),
                 )
                 self._event(connection, execution_id, generation, None, "completed")
+            logger.info(
+                canonical(
+                    {
+                        "event": "execution_finished",
+                        "execution_id": execution_id,
+                        "generation": generation,
+                        "status": "completed",
+                        "at": _now(),
+                    }
+                )
+            )
         except (Exception, KeyboardInterrupt) as exc:
             code = exc.code if isinstance(exc, IntakeError) else "stage_error"
             status = "interrupted" if isinstance(exc, KeyboardInterrupt) else "failed"
@@ -355,6 +366,19 @@ class PipelineEngine:
                         (execution_id,),
                     )
                     self._event(connection, execution_id, generation, stage_name, status, code)
+                    logger.info(
+                        canonical(
+                            {
+                                "event": "execution_finished",
+                                "execution_id": execution_id,
+                                "generation": generation,
+                                "stage": stage_name,
+                                "status": status,
+                                "error": code,
+                                "at": _now(),
+                            }
+                        )
+                    )
             if isinstance(exc, KeyboardInterrupt):
                 raise
         return self.execution(execution_id)
@@ -387,6 +411,7 @@ class PipelineEngine:
             canonical(
                 {
                     "event": "stage_started",
+                    "at": _now(),
                     "execution_id": execution_id,
                     "stage": name,
                     "generation": generation,
@@ -429,6 +454,7 @@ class PipelineEngine:
             canonical(
                 {
                     "event": "stage_finished",
+                    "at": _now(),
                     "execution_id": execution_id,
                     "batch_id": batch["id"],
                     "stage": name,
