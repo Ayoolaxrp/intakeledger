@@ -1,3 +1,94 @@
+# Extended remediation results — 2026-10-25
+
+Current version: **0.2.1**. Implemented source revision: `985b71f6ebc13ed51fb3f4ba70b0e2410c5f9cf1`.
+Pre-change audit: [EXTENDED_SCORE_AUDIT.md](EXTENDED_SCORE_AUDIT.md), initially
+committed as 8935a48 before the engineering changes were committed. All 15 full
+verification gates passed. The older report below is retained as historical evidence.
+
+## Evaluation evidence boundary
+The owner reports **64.3 overall**, with goals of 70 and 80+. The owner explicitly
+chose to proceed without the latest category scores/findings or evaluated SHA.
+All eight categories are audited; missing current evaluator facts are marked
+unavailable, and historical scores are labelled historical. No uplift or score is
+predicted. A framework migration is not justified by the observed requirements.
+
+At inspection, public main and the clean local tree matched 1e81e2f. This supersedes
+the old unpublished/authentication-failure handoff. This round's commits have not
+been pushed, and no DataFactor resubmission, agreement, licence grant or deployment
+was performed. Git history is genuine; no contributors or adoption were invented.
+
+## Implemented tasks and evidence
+
+| ID / original problem | Change and files | Added tests / verification |
+| --- | --- | --- |
+| A1: interrupted tool could leave stale green evidence | verify.py records launch/timeout failures; clean_checkout.py records failed setup and never consumes an unexecuted bundled verifier | Seed green JSON, inject timeout/launch failure, require fresh failed JSON and nonzero result |
+| A2: direct manifest/build changes could drift from hash lock | check_lock.py checks exact active resolutions, hashes, duplicates, direct constraints and build pin; verifier and CI gate added | Missing hashes, wrong input/build pin and duplicate active package fail; actual 43-package lock passes |
+| A3: CI guard used removable asserts and trusted step names | check_ci.py uses explicit errors, verifies commands, rejects skipped/allowed-failure/no-op gates and write permissions | Malformed fixtures fail; optimized Python also rejects a no-op gate; current YAML passes |
+| A3 hosted finding: Windows 3.12 PR fails pip check | quality/security jobs now create isolated venvs using GITHUB_PATH before hash installation | YAML locally validated. Hosted resolution is unverified; exact failed dependency was not obtained |
+| A4: missing safe terminal failure logs | pipeline.py logs UTC execution/stage context, generation, outcome and stable failure code | Inject sensitive exception text, verify correlated failure log omits values, recovery emits success |
+| A5: no operational aggregate quality export | Ledger.quality_summary and CLI quality command count rows, issues and gate-blocked valid rows | Mixed rows, multiple issues per row, committed/rejected gate, safe CLI JSON, missing batch |
+| A6: documentation and traceability | README, ARCHITECTURE, PIPELINES, DEVELOPMENT, KNOWN_LIMITATIONS, audit, handoff; version 0.2.1 | Commands and scope reviewed against implementation; all existing tests preserved |
+
+The lockfile already contained universal transitive hashes. Its bytes and dependency
+pins remain unchanged: validation strengthened an existing working lock rather than
+creating competing lock formats or adding runtime dependencies. No new database
+migration or service is needed; existing intake/replay interfaces remain.
+
+## Commands and actual results
+
+- `git fetch origin main` and `git rev-list --left-right --count origin/main...HEAD`:
+  zero divergence at initial audit; no unrelated initial working changes.
+- Narrow connected-email search for DataFactor/IntakeLedger: no matching report.
+- `python -m pytest tests/test_audit_guards.py -q --tb=short`: **15 passed**.
+- `python scripts/check_lock.py`: **43 active locked packages** match direct/build constraints.
+- `python scripts/check_ci.py`: current workflow structure and semantic gates passed.
+- `python -m ruff check src tests scripts` and format check: passed. Formatting
+  failures during editing were fixed; they were not suppressed.
+- `python scripts/verify.py --security`: **all 15 checks passed**, Windows/Python
+  3.11.15. Exact tool versions, command tails and build hashes are in VERIFICATION.json.
+
+| Final check | Actual outcome |
+| --- | --- |
+| Full suite | 158 passed in 163.00s; original 143 cases retained plus 15 new regression cases |
+| Combined statement/branch coverage | 94%, 891 statements and 388 branches; 90% floor retained |
+| Strict mypy | Passed, all 8 runtime modules |
+| Lock / installed dependency inventory / pip check | Passed, 43 locked development distributions, zero runtime dependencies |
+| Local repository heuristic | Passed; bounded working-tree check, not full-history/comprehensive secret scanning |
+| Wheel and source archive | Built 0.2.1; exact-version installed package smoke passed |
+| Installed library, CLI, pipeline and lineage | Passed with site-packages disabled; source archive rebuilt |
+| Real pipeline demo | Passed |
+| CI configuration | Passed locally, including the final isolated-environment YAML |
+| Bandit | No findings |
+| pip-audit | No known vulnerabilities found at query time |
+
+A new network install/entire clean-checkout helper run was not repeated this round:
+the dependency lock is unchanged. The full installed-wheel and clean extracted
+source-archive tests did execute. Historical CLEAN_CHECKOUT/FINAL_PACKAGE evidence
+remains dated to its own revision; it is not claimed as a new 0.2.1 clean checkout.
+
+## Hosted evidence and unresolved issues
+Public GitHub API data is recorded in HOSTED_CI_OBSERVATIONS.json. Run
+https://github.com/Ayoolaxrp/intakeledger/actions/runs/40131231743 is a Dependabot
+setup-python PR at e57b291, not this source revision. Its Windows 3.12 dependency
+consistency step failed. Its other three matrix jobs and security job succeeded.
+The exact failing package/cause is unknown. Environment isolation is a defensible
+boundary improvement, not a verified cure; **the hosted matrix must be rerun**.
+
+Remaining: latest DataFactor category breakdown/evaluated SHA, current hosted matrix,
+strict memory/time quotas under worst-case rules, complete history secret scanning,
+production load/power loss, external security review and owner rights/licensing review.
+The local OS account remains the trust boundary; SQLite remains one writer with
+explicit operator recovery. No invented production/benchmark evidence is substituted.
+
+Recommendation: stop speculative feature work. Publish only under the owner's
+applicable authorization, rerun hosted CI and investigate the actual Windows 3.12
+log if it still fails. Obtain the latest category report and evaluated SHA, then
+request a fresh evaluation when those evidence gates and owner rights review are
+satisfactory. Do not budget against an assumed score or payment. Specific independent
+failures or buyer requirements would justify further investment; a target alone does not.
+
+---
+
 # IntakeLedger remediation â€” 2026-10-24
 
 Status: local remediation and final verification completed. All 14 release checks

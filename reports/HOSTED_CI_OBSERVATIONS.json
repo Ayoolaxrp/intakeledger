@@ -1,0 +1,33 @@
+{
+  "observed_on": "2026-10-25",
+  "source": "https://api.github.com/repos/Ayoolaxrp/intakeledger/actions/runs/40131231743/jobs",
+  "main_sha": "1e81e2f9e6b8d8377c429407bc11975ea9e1262d",
+  "run_url": "https://github.com/Ayoolaxrp/intakeledger/actions/runs/40131231743",
+  "head_branch": "dependabot/github_actions/actions/setup-python-7.1.0",
+  "head_sha": "e57b29194acc0a94bbb7f451f454d2cfcdc091bd",
+  "event": "pull_request",
+  "jobs": [
+    {
+      "name": "security",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality (windows-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality (windows-latest, 3.12)",
+      "conclusion": "failure",
+      "failed_step": "Dependency consistency"
+    },
+    {
+      "name": "quality (ubuntu-latest, 3.11)",
+      "conclusion": "success"
+    },
+    {
+      "name": "quality (ubuntu-latest, 3.12)",
+      "conclusion": "success"
+    }
+  ],
+  "limits": "Exact failing dependency/logs not obtained. This is not a run of the new 0.2.1 changes; isolation remediation requires a hosted rerun."
+}

@@ -189,3 +189,14 @@ This round strengthens their verified weak points. SQLite, public intake/replay
 interfaces and lightweight operation remain. No forecast is made for 70 or 80+.
 Implementation results and actual commands will be appended to REMEDIATION_REPORT.md;
 this document is the pre-change audit and retains that distinction.
+
+## Additional hosted evidence found during implementation
+Public GitHub API query on 2026-10-25 confirmed main remains `1e81e2f`.
+Run https://github.com/Ayoolaxrp/intakeledger/actions/runs/40131231743 belongs to
+`dependabot/github_actions/actions/setup-python-7.1.0`, not main or these changes.
+Security and Windows 3.11/Linux 3.11/Linux 3.12 succeeded; Windows 3.12 failed at
+Dependency consistency (`pip check`). The job summary establishes that failure,
+not its exact dependency cause. Full logs/root cause were not independently obtained.
+The audited workflow installs tools directly into setup-python's environment.
+Isolated venvs were added for both CI jobs as a proportionate dependency boundary.
+This is not proof that the hosted failure is fixed: rerun the matrix after publication.
