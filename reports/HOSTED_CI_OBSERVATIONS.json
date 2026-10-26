@@ -1,33 +1,49 @@
 {
-  "observed_on": "2026-10-25",
-  "source": "https://api.github.com/repos/Ayoolaxrp/intakeledger/actions/runs/40131231743/jobs",
-  "main_sha": "1e81e2f9e6b8d8377c429407bc11975ea9e1262d",
-  "run_url": "https://github.com/Ayoolaxrp/intakeledger/actions/runs/40131231743",
-  "head_branch": "dependabot/github_actions/actions/setup-python-7.1.0",
-  "head_sha": "e57b29194acc0a94bbb7f451f454d2cfcdc091bd",
-  "event": "pull_request",
+  "observed_at": "2026-10-26T16:37:06.198132+00:00",
+  "source": "https://api.github.com/repos/Ayoolaxrp/intakeledger/actions/runs/40201420345/jobs",
+  "main_sha": "ef4100eba5823fffb0dc16444c91ef441e76c1b4",
+  "run_url": "https://github.com/Ayoolaxrp/intakeledger/actions/runs/40201420345",
+  "head_branch": "main",
+  "head_sha": "ef4100eba5823fffb0dc16444c91ef441e76c1b4",
+  "event": "push",
+  "status": "completed",
+  "conclusion": "success",
   "jobs": [
     {
-      "name": "security",
-      "conclusion": "success"
-    },
-    {
-      "name": "quality (windows-latest, 3.11)",
-      "conclusion": "success"
+      "name": "quality (ubuntu-latest, 3.12)",
+      "conclusion": "success",
+      "steps_checked": 22,
+      "failed_or_incomplete_steps": [],
+      "dependency_consistency": "success"
     },
     {
       "name": "quality (windows-latest, 3.12)",
-      "conclusion": "failure",
-      "failed_step": "Dependency consistency"
+      "conclusion": "success",
+      "steps_checked": 22,
+      "failed_or_incomplete_steps": [],
+      "dependency_consistency": "success"
     },
     {
       "name": "quality (ubuntu-latest, 3.11)",
-      "conclusion": "success"
+      "conclusion": "success",
+      "steps_checked": 22,
+      "failed_or_incomplete_steps": [],
+      "dependency_consistency": "success"
     },
     {
-      "name": "quality (ubuntu-latest, 3.12)",
-      "conclusion": "success"
+      "name": "quality (windows-latest, 3.11)",
+      "conclusion": "success",
+      "steps_checked": 22,
+      "failed_or_incomplete_steps": [],
+      "dependency_consistency": "success"
+    },
+    {
+      "name": "security",
+      "conclusion": "success",
+      "steps_checked": 10,
+      "failed_or_incomplete_steps": [],
+      "dependency_consistency": null
     }
   ],
-  "limits": "Exact failing dependency/logs not obtained. This is not a run of the new 0.2.1 changes; isolation remediation requires a hosted rerun."
+  "limits": "Hosted jobs independently observed as successful for ef4100e. Historical failing dependency/root cause was not recovered; do not infer causality from a later successful run. No DataFactor re-evaluation result is available. Step counts include runner setup/cleanup. Failure list includes any skipped steps; all were successful."
 }

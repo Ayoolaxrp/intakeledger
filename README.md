@@ -3,6 +3,11 @@ IntakeLedger turns a local JSONL feed into an inspectable intake ledger. It vali
 
 Use it for periodic partner exports and offline data checks. It is a Python library and CLI with SQLite persistence and no third-party runtime packages.
 
+The published 0.2.1 revision passed [hosted CI](https://github.com/Ayoolaxrp/intakeledger/actions/runs/40201420345)
+on Windows and Linux with Python 3.11 and 3.12, including security checks. See
+[the remediation report](reports/REMEDIATION_REPORT.md) for revision-specific evidence,
+test results and remaining limitations. Engineering checks do not predict a licensing offer.
+
 To try the source offline without installing packages, set PYTHONPATH to the src directory and run python scripts/demo.py. In PowerShell, use $env:PYTHONPATH = (Resolve-Path src).Path. The full install workflow follows below.
 
 ## Run the primary workflow

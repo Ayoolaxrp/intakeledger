@@ -200,3 +200,14 @@ not its exact dependency cause. Full logs/root cause were not independently obta
 The audited workflow installs tools directly into setup-python's environment.
 Isolated venvs were added for both CI jobs as a proportionate dependency boundary.
 This is not proof that the hosted failure is fixed: rerun the matrix after publication.
+
+## Publication and hosted verification follow-up - 2026-10-26
+
+Public main now resolves to ef4100eba5823fffb0dc16444c91ef441e76c1b4, matching
+the audited/remediated local HEAD at the start of this follow-up. The three commits
+are published. Public API run 40201420345 for that exact revision completed
+successfully: all four Windows/Linux Python 3.11/3.12 quality jobs and security.
+The Windows 3.12 dependency-consistency step therefore passed on this revision.
+HOSTED_CI_OBSERVATIONS.json records the run, revision and individual step outcomes.
+This supersedes the earlier pending-hosted-verification statement; it does not
+establish the exact cause of the historical PR failure or predict a DataFactor score.

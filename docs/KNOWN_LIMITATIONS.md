@@ -7,7 +7,7 @@ The engine buffers bounded input and row results in memory. Multiple processes s
 
 Replay does not repair values. It reinterprets all original rows under another contract. Duplicate business event IDs within a feed are not deduplicated. Retry identity is a request guarantee, not a claim of exactly-once delivery.
 
-No production deployments, performance benchmarks, user studies, power-loss tests, or external security audit exist. Python 3.11 on Windows is the local validation environment. Linux and other Python versions require CI execution. Hosted CI and DataFactor eligibility remain unverified.
+No production deployments, performance benchmarks, user studies, power-loss tests, or external security audit exist. Python 3.11 on Windows is the local validation environment. Hosted CI for revision ef4100e passed Windows and Linux on Python 3.11 and 3.12, plus the security job; see reports/HOSTED_CI_OBSERVATIONS.json. These matrix results do not establish support for every Python release or environment. DataFactor eligibility and a fresh evaluation remain unverified.
 
 See reports/FINAL_AUDIT.md for executed checks and remaining release blockers. Project licensing and legal ownership require the owner's decision. No deployment or commercial readiness is implied by passing local tests.
 

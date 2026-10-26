@@ -1,7 +1,7 @@
 # IntakeLedger handoff
 
 ## Where we stopped
-Updated 2026-10-25. Version 0.2.1.
+Updated 2026-10-26. Version 0.2.1.
 
 Audited all eight DataFactor categories in reports/EXTENDED_SCORE_AUDIT.md. Overall
 64.3 is owner-reported; the owner chose to proceed without the current category
@@ -18,17 +18,29 @@ Verified: all 15 full verifier checks passed; 158 tests, 94% combined coverage;
 format, lint, strict mypy, lock/inventory/pip consistency, repository heuristic,
 0.2.1 wheel/sdist build, installed library/CLI/pipeline/lineage with site-packages
 disabled, source rebuild, real demo, CI configuration, Bandit and pip-audit.
-See reports/REMEDIATION_REPORT.md and VERIFICATION.json. New clean-checkout network
-installation was not rerun; old clean evidence is historical.
+See reports/REMEDIATION_REPORT.md and VERIFICATION.json. On 2026-10-26,
+scripts/clean_checkout.py exported tracked ef4100e into a new environment,
+hash-installed all 43 tooling distributions, installed editable and passed all 15
+verifier gates. Fresh suite: 158 passed in 60.05s, 94% coverage; scans/build/demo
+passed. CLEAN_CHECKOUT.json records all_passed=true and the exact source revision.
 
-Remote: main matched public 1e81e2f at initial fetch. These new audit/remediation
-commits have not been pushed. A public Dependabot setup-python PR failed pip check
-on Windows 3.12 while the other matrix jobs/security passed. CI isolation was added,
-but the precise failing dependency and a hosted rerun remain unverified. Metadata
-is in HOSTED_CI_OBSERVATIONS.json.
+Remote: public main now matches ef4100eba5823fffb0dc16444c91ef441e76c1b4.
+The audit/remediation commits are published. Hosted push run 40201420345 passed
+all four Windows/Linux Python 3.11/3.12 quality jobs and security, including the
+previously failing Windows 3.12 dependency step. The historical exact cause remains
+unknown. Current API metadata is in HOSTED_CI_OBSERVATIONS.json.
 
-Next: owner-authorized publication and hosted matrix verification; obtain actual
-latest DataFactor category report/evaluated SHA and review ownership/licensing before
+This follow-up updates publication/hosted evidence and stale documentation without
+runtime changes. This session's gh token still reports invalid. New follow-up
+documentation/evidence remains local: the authorized push failed with
+`fatal: unable to get password from user`. The working tree is clean after commit;
+the implementation through ef4100e is already published. Retry the follow-up push
+only with working authentication; never force-push.
+The attached Pasted text(3).txt could be identified but not read or downloaded:
+no parsed text, then two TLS transport failures. Do not invent its findings.
+
+Next: obtain actual latest DataFactor category report/evaluated SHA as readable text
+and review ownership/licensing before
 commercial commitments. Stop additional speculative features pending that feedback.
 No submission, agreement, deployment or licence grant was performed.
 

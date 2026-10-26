@@ -1,4 +1,60 @@
-# Extended remediation results — 2026-10-25
+# Publication and verification follow-up - 2026-10-26
+
+The implementation and audit commits through **ef4100e** are now published on
+GitHub main. `git ls-remote origin refs/heads/main` matched the full local revision.
+The earlier statements below about these commits being unpublished or awaiting a
+hosted matrix are historical and superseded by this section.
+
+Independently queried the public GitHub API for run **40201420345**, event `push`,
+at ef4100eba5823fffb0dc16444c91ef441e76c1b4. All four quality jobs
+(Windows/Linux, Python 3.11/3.12) and the security job completed successfully.
+Every reported step succeeded, including Windows 3.12 dependency consistency.
+See HOSTED_CI_OBSERVATIONS.json and
+https://github.com/Ayoolaxrp/intakeledger/actions/runs/40201420345.
+The exact cause of the historical failed run remains unknown; the successful
+replacement run is evidence of the current revision, not a retrospective diagnosis.
+
+Updated README.md, docs/KNOWN_LIMITATIONS.md, EXTENDED_SCORE_AUDIT.md and the hosted
+evidence to remove stale current-state uncertainty. No runtime code or public API
+was changed. Repository heuristic and semantic CI checks passed; `git diff --check`
+passed. The full existing verification result remains 158 tests and 94% coverage.
+
+## Fresh clean-checkout proof
+
+Executed `python scripts/clean_checkout.py` with the existing isolated Python 3.11
+interpreter. It exported tracked **ef4100e** with `git archive HEAD`, initialized a
+temporary index for the repository heuristic, created a new virtual environment,
+hash-installed all 43 locked tooling distributions, installed the package editable
+without build isolation or dependency resolution, then ran
+`python scripts/verify.py --security`. All three stages exited **0**; the complete
+helper exited **0**. CLEAN_CHECKOUT.json records `all_passed: true`, the source
+revision and embedded actual results. VERIFICATION.json and the scanner/inventory
+reports were refreshed from that clean run.
+
+All **15** verification gates passed: lock consistency, dependency inventory,
+formatting, linting, strict types, tests, coverage, repository hygiene, package build,
+installed-package smoke, real pipeline demo, pip consistency, workflow contracts,
+Bandit and pip-audit. **158 tests passed in 60.05s**, with **94%** combined
+statement/branch coverage against the existing 90% floor. Wheel/source builds and
+installed CLI/library/pipeline checks passed. Bandit reported no findings and
+pip-audit reported no known vulnerabilities at query time. These are bounded
+automated checks, not a comprehensive security audit or a performance benchmark.
+
+This supersedes the earlier missing-0.2.1-clean-install limitation below. The export
+excludes this follow-up's documentation/evidence edits; runtime code and lock pins
+remain unchanged from the tested revision. Recommend using that published revision
+for a fresh evaluation before funding speculative features. No evaluation was
+submitted and no score increase is claimed.
+
+No new DataFactor score or current category findings are verified. The newly
+attached text had no readable content through the file reader, and its supported
+download helper failed twice with a TLS transport error. Its findings have not
+been assumed. Direct feedback text and the evaluated commit remain the next useful
+inputs; speculative framework work is not justified by a score target alone.
+
+---
+
+# Extended remediation results - 2026-10-25
 
 Current version: **0.2.1**. Implemented source revision: `985b71f6ebc13ed51fb3f4ba70b0e2410c5f9cf1`.
 Pre-change audit: [EXTENDED_SCORE_AUDIT.md](EXTENDED_SCORE_AUDIT.md), initially
