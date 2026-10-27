@@ -1,3 +1,52 @@
+# Verified feedback follow-up - 2026-10-27
+
+Owner-supplied DataFactor email PDF dated 2026-10-27 reports **65.7 overall**,
+not the previous 64.3. Report SHA-256: `4a1a730998b6edb67932ab442d07ce3b1e25db5b2198264a3e0d3311bd4f5e33`.
+The report's evaluated Git SHA is absent. Local and public main both resolve to
+396c667 at this inspection, with a clean working tree. The document was read
+locally; the original contains personal contact details and is not committed.
+Targets of 70/80+ remain goals. The provider's approximate point estimates are
+not forecasts we can validate. No score, offer or payment is promised.
+
+## Latest categories and verified disposition
+
+Costs below are focused engineering estimates, not pricing or predicted points.
+Historical audits below are retained; this table supersedes their unavailable
+current category scores. The latest report includes a ninth category, Docs.
+
+| Category / reported score | Report finding | Current verification / additional gap | Action, cost, dependencies and proof | Worth pursuing? |
+| --- | --- | --- | --- | --- |
+| Architecture & Robustness / 72 | Layered modules, SQLite atomicity and logging; truncated external-system comment | Transactions, recovery and bounded local design exist. JSON messages lack native event attributes; embedding CLI verbose logging depends on root configuration | Structured LogRecord metadata and scoped JSON CLI handler, 0.5-1.5h; depends on current logging calls; native-field, CLI, privacy and host-handler tests | Yes; no distributed rewrite |
+| Pipeline & Data Quality / 45 | Stages, retries, backfill and rules exist; no Airflow/dbt/Dagster or external lineage | Pipeline.from_dict already supplies a declarative dependency graph; SQLite lineage is internal by design. Cross-system delivery/lineage is absent | Clarify scope and validation mapping, 0.25-0.5h; existing engine/tests are proof. External connectors need a real source/sink requirement | Documentation yes; framework adoption no |
+| Docs & Onboarding / 80 | Docs exist; no changelog/container/env example | No environment variables are needed. README verification relies on reader following earlier setup; a direct clean development recipe and release notes are useful | Explicit isolated hash install, editable install, pytest and full verifier commands; concise changelog and validation reference, 0.25-0.75h; verify commands/build | Yes; no empty env example or unjustified container |
+| Test Coverage / 68 | Seven test files, ratio and 90 floor; claims pytest-cov configured | Eight test files exist. Coverage uses coverage.py directly; pytest-cov is not a dependency. Last clean run: 158 tests and 94% combined coverage, a different metric from provider score | Pair new logging/package guards with behaviour tests; retain all old assertions; full coverage run, 0.5-1h paired with changes | Yes; do not chase line counts |
+| Code Cleanliness / 78 | Ruff/strict mypy; pipeline largest module | Verified checks exist; no useful rewrite justified solely by file length. Logging formatting is repeated | Central metadata emitter/formatter removes repeated logging wrappers; lint/type/build/full tests; included in logging cost | Yes, scoped reuse only |
+| Dependency Health / 40 | Scanner lockfiles_found empty; concludes fresh clone unreproducible | Contradicted: git tracks requirements-dev.in/.lock/security, MANIFEST includes them, and CLEAN_CHECKOUT.json records a successful fresh hash install at ef4100e. Zero runtime dependencies. Scanner bundle/parser cause unknown | Assert exact lock/input/security bytes survive sdist packaging, record filenames/hashes in smoke evidence, 0.25-0.75h; missing/tampered bundle regression and actual package rebuild | Yes; do not add competing locks or regenerate unchanged pins for appearance |
+| CI/CD Maturity / 88 | Matrix, semantic gates, scans and pinned actions recognized | Public run 40201420345 passed all five jobs. Future changes need another hosted run | Preserve gates; local full verifier and subsequent hosted run, 0.25-0.5h validation overhead; requires publication/auth | Yes; no CD service needed |
+| Security Hygiene / 78 | No secret hits; validation-pattern stats empty | Manual boundary validation exists despite scanner heuristic. Logging must omit values, labels and exception text. Full history/independent audit remain absent | Validation map and formatter allowlist, privacy/failure tests and fresh audits; included above | Yes; do not reshape validators to satisfy regexes |
+| History & Maintenance / 30 | New single-author project, 11 commits/two days/no tags | New project is real; sustained adoption/maintenance cannot be created on demand. Current history has genuine later evidence commits | Commit real fixes with tests; do not fabricate contributors, backdate, churn code or create tags solely for score. Organic maintenance depends on real work | Normal maintenance yes; cosmetic history no |
+
+## Ordered plan before code changes
+
+1. Preserve and rerun current baseline. Check tracked lock files and package manifest.
+2. Add structured event attributes plus a JSON stderr formatter for CLI verbose
+   logging; preserve legacy JSON messages, stdout contracts, host logging handlers,
+   safe metadata and current transaction/retry behaviour. Pair with tests/docs.
+3. Verify exact dependency-lock material in source archives, including negative
+   missing/tampered fixtures; keep the existing pip/hash-lock workflow and pins.
+4. Document CLI/library validation, exact clean setup/test commands, supported scope
+   and real release changes. Update remediation evidence after full verification.
+5. Publish under existing authorization when authentication permits; inspect hosted
+   CI, then obtain a fresh evaluation. No submission or agreement is authorized here.
+
+Dependency chain: baseline -> feature/test changes -> full verification/package
+proof -> authentic commit -> published revision/hosted CI -> new score. No defensible
+numeric uplift can be calculated from the provider's partially unknown formula.
+The highest-confidence evaluation discrepancy is missing-lock detection; independent
+engineers can reproduce the committed lock regardless of that scanner result.
+
+---
+
 # Extended IntakeLedger audit
 
 Checked 2026-10-25, before this round's implementation. Source: local and public
