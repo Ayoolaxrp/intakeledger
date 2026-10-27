@@ -1,5 +1,6 @@
 """Install the built wheel outside the checkout and run without site-packages."""
 
+import hashlib
 import json
 import os
 import subprocess
@@ -10,6 +11,20 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def verify_dependency_bundle(extracted, expected_root=ROOT):
+    """Release source must contain the exact dependency inputs used by CI."""
+    digests = {}
+    for name in ("requirements-dev.in", "requirements-dev.lock", "requirements-security.txt"):
+        bundled = extracted / name
+        if not bundled.is_file():
+            raise RuntimeError(f"Source archive is missing dependency material: {name}")
+        data = bundled.read_bytes()
+        if data != (expected_root / name).read_bytes():
+            raise RuntimeError(f"Source archive dependency material differs: {name}")
+        digests[name] = hashlib.sha256(data).hexdigest()
+    return digests
 
 
 def main():
@@ -48,6 +63,7 @@ def main():
                 raise RuntimeError("Source archive contains unwanted files")
             package.extractall(base / "source", filter="data")
         extracted = next((base / "source").iterdir())
+        lock_hashes = verify_dependency_bundle(extracted)
         subprocess.run(
             [
                 sys.executable,
@@ -111,6 +127,7 @@ print(json.dumps(ledger.health()))
                 "wheel_install": "passed",
                 "site_packages_disabled": True,
                 "sdist_rebuild": "passed",
+                "dependency_bundle_sha256": lock_hashes,
                 "installed_workflow": "passed",
             }
         )

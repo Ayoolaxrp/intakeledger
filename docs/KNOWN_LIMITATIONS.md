@@ -32,3 +32,11 @@ measurement from the evaluator's unknown method. The lock guard evaluates marker
 on its current interpreter; the configured platform/Python CI matrix remains needed.
 History secret scanning, independent security review and legal ownership/licensing
 review are still outside the completed automated checks.
+
+## 0.2.2 feedback and operational boundaries
+The latest owner-supplied report gives 65.7 overall. Its missing-lock inference
+conflicts with tracked files and successful clean installation. Source-package
+checks now verify exact lock material; the evaluated SHA and scanner-bundle/parser
+cause remain unknown. No score uplift has been measured. Logs are not transactional
+or exactly-once delivery. Concurrent embedded CLI main calls are unsupported; use
+host-configured library logging or separate CLI processes. See OBSERVABILITY.md.

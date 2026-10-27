@@ -89,4 +89,12 @@ extension in REMEDIATION_REPORT.md for results. Full verification remains
 CI jobs now create a private `.venv` and put its executable directory on GITHUB_PATH
 before hash installation. The lock is intended for an isolated environment; hosted
 runner packages must not be treated as part of its dependency contract. The observed
-Windows 3.12 Dependabot failure still needs a hosted rerun and exact-log diagnosis.
+Windows 3.12 failure is historical: hosted main run 40201420345 passed all jobs;
+the old exact cause is unknown. New changes still require hosted checks.
+
+## Release bundles and event logs
+Source package smoke verifies exact bytes of requirements-dev.in,
+requirements-dev.lock and requirements-security.txt before rebuilding. Missing or
+changed files fail even if a wheel happened to build. The tool prints their hashes.
+See OBSERVABILITY.md for structured fields and CLI logging configuration boundaries,
+VALIDATION.md for request guards, and root CHANGELOG.md for release changes.

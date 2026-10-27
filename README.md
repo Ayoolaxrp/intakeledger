@@ -40,6 +40,18 @@ Retry identity is source plus key. Identical source bytes, normalized contract d
 
 Rejected batches export nothing. Committed batches export their valid rows in input order. Replay revalidates every row, so a stricter replacement contract can reject a previously accepted row.
 
+## Scope and non-goals
+This is a self-contained transactional intake ledger and in-process, declarative
+pipeline engine for bounded local batches. It does not schedule remote jobs,
+connect warehouses or track lineage across external systems. External orchestration
+and connectors need an actual integration requirement; SQLite remains the local
+coordination boundary. See [pipeline semantics](docs/PIPELINES.md).
+
+## Input validation
+[The validation map](docs/VALIDATION.md) identifies CLI/library guards, limits and
+caller responsibilities. [Event logging](docs/OBSERVABILITY.md) explains native
+metadata fields and JSON stderr output. [Release notes](CHANGELOG.md) record changes.
+
 ## Architecture
 The CLI handles bounded files and machine-readable results. Contract validation has no persistence dependencies. The ledger records a batch and its rows in one SQLite transaction. SQLite coordinates concurrent writers. Read [architecture](docs/ARCHITECTURE.md) and [decisions](docs/DECISIONS/0001-local-transactional-ledger.md) for the tradeoffs.
 
@@ -52,14 +64,29 @@ See [pipelines](docs/PIPELINES.md) for definitions, CLI commands, states and gua
 [the remediation report](reports/REMEDIATION_REPORT.md) for verified quality evidence.
 
 ## Development and verification
+From a clean checkout, use an isolated environment and the committed hash lock:
+
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.lock
-.\.venv\Scripts\python.exe scripts/verify.py
+.\.venv\Scripts\python.exe -m pip install --no-build-isolation --no-deps -e .
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe scripts/verify.py --security
 ```
 
-The verifier runs tests with branch coverage, Ruff, strict mypy, repository checks, build, and an installed-package smoke test. To add Bandit and dependency scanning, install `requirements-security.txt` and run `scripts/verify.py --security`. Scanner installation and advisory queries need internet access. [Development](docs/DEVELOPMENT.md) describes individual commands and evidence files.
+On Linux replace `.\.venv\Scripts\python.exe` with `.venv/bin/python`.
+The supported manager is pip. requirements-dev.in declares direct development
+constraints; requirements-dev.lock holds transitive versions and hashes;
+requirements-security.txt delegates to that same lock. No runtime packages are
+required. Package smoke rejects missing/changed lock material in source archives
+and prints SHA-256 digests for inspection.
 
-Build with `python -m build --no-isolation` after installing the development lock. Wheels and source archives go to ignored `dist/`. The package includes the migration SQL and type marker.
+The verifier runs tests with branch coverage, Ruff, strict mypy, repository checks,
+build, installed-package smoke, the real pipeline demo, Bandit and pip-audit.
+Installation and advisory queries need network access. See
+[development](docs/DEVELOPMENT.md) for commands and evidence files.
+Build with `python -m build --no-isolation` after hash installation; output is in
+ignored dist/. Packages include migration SQL and the type marker.
 
 ## Operation and limits
 No environment variables, credentials, ports, or daemon are required. The database path is explicit on every command. `--verbose` logs batch metadata to stderr. The local operating-system account controls database access. The raw database is not encrypted. Run only with synthetic data in this evaluation project.

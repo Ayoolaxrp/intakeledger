@@ -1,4 +1,4 @@
-include README.md PROVENANCE.md THIRD_PARTY.md .editorconfig .gitattributes .gitignore
+include README.md CHANGELOG.md PROVENANCE.md THIRD_PARTY.md .editorconfig .gitattributes .gitignore
 include requirements-dev.in requirements-dev.lock requirements-security.txt
 include HANDOFF.md
 recursive-include lessons *.md
