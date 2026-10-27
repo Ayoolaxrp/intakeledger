@@ -103,7 +103,7 @@ The owner has not chosen a project licence. No licence grant is included. The ow
 ## Quality inspection and release evidence
 Use `python -m intakeledger --db intake.db quality BATCH_ID` for safe row/issue
 aggregates, and `--verbose` for timestamped stage and terminal execution logs.
-The [extended audit](reports/EXTENDED_SCORE_AUDIT.md) distinguishes verified gaps
-from unavailable evaluator details. Release checks now enforce direct-input/build
+The [extended audit](reports/EXTENDED_SCORE_AUDIT.md) checks the latest evaluator
+findings against repository evidence. Release checks now enforce direct-input/build
 lock consistency and reject ineffective CI gates; failed tool launches/timeouts
 produce fresh failed evidence rather than leaving an older green report.

@@ -1,3 +1,92 @@
+# Evaluation-driven remediation - 2026-10-27
+
+Version **0.2.2**. Tested source: **7abc45d88d97ca9aa66c21a1381d9cf2638c101f**.
+The owner-supplied DataFactor email reports **65.7** overall. All nine category
+scores, verified findings, costs and priorities are in EXTENDED_SCORE_AUDIT.md.
+The report's evaluated SHA is absent; no new grade, uplift, offer or payment is
+claimed. The private original PDF is not included in the repository.
+
+## Findings and changes
+
+| Original problem | Implementation / affected files | Meaningful proof |
+| --- | --- | --- |
+| JSON messages lacked native LogRecord fields; CLI verbose depended on root logging | observability.py emits native metadata and a JSON formatter; ledger.py/pipeline.py share the emitter; cli.py scopes its handler without replacing host/root handlers | test_observability.py: native fields, UTC time, stage/generation/batch correlation, real CLI stderr JSON/stdout separation, failure privacy/recovery and configuration restoration |
+| Evaluator says no lock and fresh setup unreproducible | Existing tracked requirements-dev.in/.lock/security were already valid; package_smoke.py now rejects missing or changed source-bundle files and emits their SHA-256 digests | test_package_material.py: successful exact bundle, all three missing-file cases and all three altered-file cases; actual wheel/sdist and clean hash install pass |
+| Validation not discoverable; scope and onboarding unclear | docs/VALIDATION.md maps each CLI/library boundary and residual assumptions; README.md has exact clean setup, pytest, verifier and local pipeline scope; OBSERVABILITY.md/ARCHITECTURE.md document logging; DEVELOPMENT.md/KNOWN_LIMITATIONS.md corrected; CHANGELOG.md included by MANIFEST.in | Cross-checked function names, constants, caller responsibilities and commands; complete locked install, editable install, source rebuild and real demo |
+
+No runtime dependency, external orchestrator, connector, service, container or
+empty environment file was introduced. SQLite/schema v2 and ingestion, replay,
+pipeline, quality and stdout contracts remain. Log messages retain JSON for existing
+handlers; CLI verbose events add level/logger. Public API behaviours are preserved.
+
+## Commands actually executed and results
+
+- Read Git status/history, tracked lock paths and manifest; tree initially clean.
+  git ls-remote showed public main at 396c667. The nine-category audit was committed
+  before source implementation. No historical author/contributor activity was added.
+- Baseline `python scripts/verify.py --security`: **all 15 gates passed**, 158 tests,
+  94% coverage, before implementation.
+- `python -m pytest tests/test_observability.py tests/test_cli.py tests/test_audit_guards.py -q --tb=short`:
+  **26 passed**. Initial Ruff import/context findings were fixed, not suppressed.
+- `python -m ruff format src tests scripts`, `python -m ruff check src tests scripts`,
+  `python -m mypy src`: passed; strict typing covers nine runtime modules.
+- `python -m pytest tests/test_observability.py tests/test_package_material.py -q --tb=short`:
+  **13 passed**. Original 158 cases were preserved.
+- `python scripts/clean_checkout.py`: **exit 0**. It exported tracked 7abc45d, created
+  a new venv, hash-installed all 43 locked tooling packages, installed the package
+  editable with no dependency resolution/build isolation, then ran the complete
+  verifier with security. All three setup/verification stages exited 0.
+- Fresh full suite: **171 passed in 32.90s**, **94%** combined statement/branch coverage
+  (929 statements, 388 branches); the 90% floor remains. This is test execution
+  evidence, not a throughput benchmark. The new logging module's measured paths
+  were all covered; CLI subprocess coverage remains outside the parent measurement.
+- All **15** gates passed: lock consistency, installed inventory, lint, formatting,
+  strict types, tests, coverage, repository heuristic, build, package smoke, pipeline
+  demo, pip check, semantic CI validation, Bandit and pip-audit.
+- 0.2.2 wheel/source build, installed library/CLI/pipeline/lineage without site-packages,
+  source rebuild, and actual synthetic pipeline demo passed. Source-bundle lock SHA-256:
+  `bfc52a71565412c47f5464c329cf990f13348e3f49b49ecae025a8e091054388`.
+- Bandit: no findings. pip-audit: no known vulnerabilities at query time. Repository
+  heuristic: no findings; it is not a comprehensive full-history secret/security audit.
+- Reviewed the source diff, dependency changes (none), document references and
+  `git diff --check`; no unrelated changes or known secrets were found.
+
+CLEAN_CHECKOUT.json records exact source revision, fresh setup and embedded results.
+VERIFICATION.json, DEPENDENCIES.json, BANDIT.json and PIP_AUDIT.json contain actual
+results. This final narrative/evidence update follows the tested source commit.
+
+## What remains unverified / recommended next step
+
+The existing public main 396c667 has successful hosted verify run 40381082305:
+https://github.com/Ayoolaxrp/intakeledger/actions/runs/40381082305.
+That is **not** a hosted run of the new 0.2.2 changes; those need publication and
+another hosted matrix. Publication/authentication status must be checked separately.
+
+Authorized push attempts with the configured GitHub CLI helper and a command-scoped
+native credential-manager helper both failed in this session. Git for Windows
+could not launch its credential-helper child process (NtCreateDirectoryObject,
+0xC0000022), then reported password unavailable. gh auth status also reports an
+invalid session token. No newly published 0.2.2 revision or hosted run is claimed.
+The verified changes are safely committed locally; use an authenticated host
+PowerShell to push main. No force-push or credential extraction was attempted.
+
+The latest report's lockfile absence conflicts with tracked files, a fresh hash
+installation and exact-byte package proof. Its pytest-cov claim is also inaccurate:
+this project uses coverage.py directly. The report's seven test-module count agrees
+with the baseline (conftest is a fixture file); the two new test modules bring that
+to nine. Scanner bundle/filter/parser cause and the provider's scoring formula are
+unknown. Do not create competing locks or add frameworks to satisfy a heuristic.
+
+Recommend re-scoring the tested revision after publication and hosted CI, rather
+than speculative feature growth. If lock detection still fails, provide the exact
+paths, source SHA, package hashes and clean-install proof to DataFactor for review.
+A new score is the only evidence of whether the target was reached. No re-evaluation
+submission, agreement, licence grant or message to another person was performed.
+Sustained real maintenance, external security review, worst-case resource/load and
+power-loss tests, and owner rights/licensing review remain outside these checks.
+
+---
+
 # Publication and verification follow-up - 2026-10-26
 
 The implementation and audit commits through **ef4100e** are now published on
