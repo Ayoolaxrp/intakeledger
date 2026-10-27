@@ -69,3 +69,10 @@ explicit CI gate checks are development boundaries, not runtime dependencies.
 Verifier launch/time-limit failures are persisted as failed evidence; an older green
 report is not a valid substitute for a completed run. See the extended audit and
 current remediation report for scope, tests and environmental limits.
+
+## Structured operational events
+observability.py attaches native metadata to standard LogRecords while preserving
+canonical JSON messages. Verbose CLI mode scopes a JSON handler to the intakeledger
+namespace and restores its settings on exit; root handlers remain owned by the host.
+Only approved metadata is formatted. SQLite events remain authoritative; log delivery
+is not transactional. See OBSERVABILITY.md.

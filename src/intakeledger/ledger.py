@@ -26,6 +26,7 @@ from .contracts import (
     parse_json,
 )
 from .errors import IntakeError
+from .observability import emit_event
 
 APPLICATION_ID = 0x494C4447
 SCHEMA_VERSION = 2
@@ -259,15 +260,12 @@ class Ledger:
             result = self._write_batch(
                 connection, source, key, contract, rows, source_digest, threshold, parent
             )
-        logger.info(
-            canonical(
-                {
-                    "event": "batch_recorded",
-                    "batch_id": result["id"],
-                    "row_count": result["row_count"],
-                    "status": result["status"],
-                }
-            )
+        emit_event(
+            logger,
+            "batch_recorded",
+            batch_id=result["id"],
+            row_count=result["row_count"],
+            status=result["status"],
         )
         return result
 

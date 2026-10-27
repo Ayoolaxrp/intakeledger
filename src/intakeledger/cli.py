@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import logging
 import sys
 from contextlib import suppress
 from pathlib import Path
@@ -13,6 +12,7 @@ from typing import Any, NoReturn
 from .contracts import MAX_CONTRACT_BYTES, MAX_INPUT_BYTES, Contract, parse_json
 from .errors import IntakeError
 from .ledger import Ledger
+from .observability import cli_logging
 from .pipeline import Pipeline, PipelineEngine
 
 EXIT_CODES = {
@@ -138,29 +138,28 @@ def _run(args: argparse.Namespace) -> tuple[Any, int]:
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO, format="%(message)s")
-    try:
-        result, code = _run(args)
-        if args.command == "export":
-            for row in result:
-                print(json.dumps(row, sort_keys=True, ensure_ascii=True, separators=(",", ":")))
-        else:
-            print(json.dumps(result, sort_keys=True, ensure_ascii=True))
-        sys.stdout.flush()
-        return code
-    except IntakeError as exc:
-        print(json.dumps({"error": {"code": exc.code, "message": str(exc)}}), file=sys.stderr)
-        return EXIT_CODES.get(exc.code, 2)
-    except BrokenPipeError:
-        with suppress(BrokenPipeError):
-            sys.stdout.close()
-        return 0
-    except OSError:
-        print(
-            json.dumps({"error": {"code": "io_error", "message": "File operation failed"}}),
-            file=sys.stderr,
-        )
-        return 2
-    except KeyboardInterrupt:
-        return 130
+    with cli_logging(args.verbose):
+        try:
+            result, code = _run(args)
+            if args.command == "export":
+                for row in result:
+                    print(json.dumps(row, sort_keys=True, ensure_ascii=True, separators=(",", ":")))
+            else:
+                print(json.dumps(result, sort_keys=True, ensure_ascii=True))
+            sys.stdout.flush()
+            return code
+        except IntakeError as exc:
+            print(json.dumps({"error": {"code": exc.code, "message": str(exc)}}), file=sys.stderr)
+            return EXIT_CODES.get(exc.code, 2)
+        except BrokenPipeError:
+            with suppress(BrokenPipeError):
+                sys.stdout.close()
+            return 0
+        except OSError:
+            print(
+                json.dumps({"error": {"code": "io_error", "message": "File operation failed"}}),
+                file=sys.stderr,
+            )
+            return 2
+        except KeyboardInterrupt:
+            return 130

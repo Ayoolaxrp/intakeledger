@@ -13,6 +13,7 @@ from typing import Any
 from .contracts import MAX_INPUT_BYTES, MAX_ROW_BYTES, NAME, canonical, parse_json
 from .errors import IntakeError
 from .ledger import Ledger, PreparedRow, _label, _prepare, _threshold
+from .observability import emit_event
 from .quality import QualityRules, _fields
 
 logger = logging.getLogger(__name__)
@@ -332,16 +333,12 @@ class PipelineEngine:
                     (_now(), execution_id),
                 )
                 self._event(connection, execution_id, generation, None, "completed")
-            logger.info(
-                canonical(
-                    {
-                        "event": "execution_finished",
-                        "execution_id": execution_id,
-                        "generation": generation,
-                        "status": "completed",
-                        "at": _now(),
-                    }
-                )
+            emit_event(
+                logger,
+                "execution_finished",
+                execution_id=execution_id,
+                generation=generation,
+                status="completed",
             )
         except (Exception, KeyboardInterrupt) as exc:
             code = exc.code if isinstance(exc, IntakeError) else "stage_error"
@@ -366,18 +363,14 @@ class PipelineEngine:
                         (execution_id,),
                     )
                     self._event(connection, execution_id, generation, stage_name, status, code)
-                    logger.info(
-                        canonical(
-                            {
-                                "event": "execution_finished",
-                                "execution_id": execution_id,
-                                "generation": generation,
-                                "stage": stage_name,
-                                "status": status,
-                                "error": code,
-                                "at": _now(),
-                            }
-                        )
+                    emit_event(
+                        logger,
+                        "execution_finished",
+                        execution_id=execution_id,
+                        generation=generation,
+                        stage=stage_name,
+                        status=status,
+                        error=code,
                     )
             if isinstance(exc, KeyboardInterrupt):
                 raise
@@ -407,16 +400,12 @@ class PipelineEngine:
                 (_now(), execution_id, name),
             )
             self._event(connection, execution_id, generation, name, "running")
-        logger.info(
-            canonical(
-                {
-                    "event": "stage_started",
-                    "at": _now(),
-                    "execution_id": execution_id,
-                    "stage": name,
-                    "generation": generation,
-                }
-            )
+        emit_event(
+            logger,
+            "stage_started",
+            execution_id=execution_id,
+            stage=name,
+            generation=generation,
         )
         with self.ledger._connect() as connection, self.ledger._transaction(connection):
             self._owned(connection, execution_id, generation)
@@ -450,18 +439,15 @@ class PipelineEngine:
                 (status, batch["id"], _now(), error, execution_id, name),
             )
             self._event(connection, execution_id, generation, name, status, error)
-        logger.info(
-            canonical(
-                {
-                    "event": "stage_finished",
-                    "at": _now(),
-                    "execution_id": execution_id,
-                    "batch_id": batch["id"],
-                    "stage": name,
-                    "status": status,
-                    "error": error,
-                }
-            )
+        emit_event(
+            logger,
+            "stage_finished",
+            execution_id=execution_id,
+            batch_id=batch["id"],
+            stage=name,
+            status=status,
+            error=error,
+            generation=generation,
         )
         if error:
             raise IntakeError(error, "Stage output failed its quality gate")
