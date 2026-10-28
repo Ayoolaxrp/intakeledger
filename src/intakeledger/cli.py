@@ -64,6 +64,16 @@ def parser() -> argparse.ArgumentParser:
     for command in ("show", "rows", "export", "quality"):
         child = commands.add_parser(command)
         child.add_argument("batch_id")
+        if command == "quality":
+            child.add_argument(
+                "--fail-on-threshold",
+                action="store_true",
+                help="Exit 5 when the consumer quality policy fails",
+            )
+            child.add_argument("--max-invalid", help="Allowed invalid fraction (gate default: 0)")
+            child.add_argument(
+                "--min-exportable", type=int, help="Minimum exportable rows (gate default: 1)"
+            )
         if command == "rows":
             child.add_argument("--include-payload", action="store_true")
     for command in ("pipeline", "backfill"):
@@ -123,7 +133,18 @@ def _run(args: argparse.Namespace) -> tuple[Any, int]:
     if args.command == "lineage":
         return ledger.lineage(args.batch_id), 0
     if args.command == "quality":
-        return ledger.quality_summary(args.batch_id), 0
+        if not args.fail_on_threshold:
+            if args.max_invalid is not None or args.min_exportable is not None:
+                raise IntakeError(
+                    "usage_error", "Quality policy options require --fail-on-threshold"
+                )
+            return ledger.quality_summary(args.batch_id), 0
+        result = ledger.quality_gate(
+            args.batch_id,
+            max_invalid="0" if args.max_invalid is None else args.max_invalid,
+            min_exportable=1 if args.min_exportable is None else args.min_exportable,
+        )
+        return result, 0 if result["gate"]["passed"] else 5
     if args.command == "show":
         return ledger.batch(args.batch_id), 0
     if args.command == "rows":

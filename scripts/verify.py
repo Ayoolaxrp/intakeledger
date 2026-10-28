@@ -53,6 +53,7 @@ def main():
         ("build", ["-m", "build", "--no-isolation"]),
         ("package", ["scripts/package_smoke.py"]),
         ("pipeline_demo", ["scripts/pipeline_demo.py"]),
+        ("quality_gate_demo", ["scripts/quality_gate_demo.py"]),
         ("pip_check", ["-m", "pip", "check"]),
         ("ci_configuration", ["scripts/check_ci.py"]),
     ]

@@ -41,3 +41,10 @@ test_pipeline.py exercise invalid definitions, hostile JSON, limits, rejected
 records, rollback, replay, graphs, references and recovery. test_processes.py
 covers competing writers and abrupt termination. Logging privacy is covered by
 test_observability.py; no real customer records are bundled.
+
+
+Scientific-notation quality thresholds additionally restrict the exponent to
+-1000 through 1000 before constructing a Fraction. A 32-character string alone
+cannot bound the allocation from an enormous power of ten. Decimal/rational
+thresholds retain exact comparisons and normalized retry identity. Out-of-range
+exponents return `invalid_threshold` and do not write a batch.

@@ -54,6 +54,8 @@ jobs:
         run: python scripts/package_smoke.py
       - name: Demo
         run: python scripts/pipeline_demo.py
+      - name: Quality gate demo
+        run: python scripts/quality_gate_demo.py
       - name: Inventory
         run: python scripts/dependencies.py
       - name: Workflow contracts

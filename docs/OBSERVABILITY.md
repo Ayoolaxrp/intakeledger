@@ -34,3 +34,10 @@ SQLite still coordinates ledger writers.
 
 Tests cover real CLI stderr/stdout separation, native attributes, failure redaction
 and recovery, JSON parsing and restoration of host logging settings.
+
+
+`quality_gate_checked` records batch_id, passed/failed status, row_count and a
+safe quality_gate_failed error code when a consumer policy fails. It has native
+LogRecord fields and verbose JSON output like other events. Detailed policy and
+safe failure reasons are in the command result, not row values in logs. Checking
+a gate records no new database batch or execution; callers can archive its JSON.

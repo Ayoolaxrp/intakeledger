@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import sqlite3
 import uuid
 from collections.abc import Iterator
@@ -56,6 +57,11 @@ def _label(value: str) -> None:
 def _threshold(value: str) -> Fraction:
     try:
         if not isinstance(value, str) or len(value) > 32:
+            raise ValueError
+        # Fraction allocates powers of ten for scientific notation. A short
+        # exponent can request gigabytes, so bound it before any conversion.
+        exponent = re.search(r"[eE]([+-]?[\d_]+)\s*$", value)
+        if exponent and abs(int(exponent.group(1))) > 1000:
             raise ValueError
         result = Fraction(value)
         if not 0 <= result <= 1:
@@ -486,3 +492,39 @@ class Ledger:
                 "blocked_valid_rows": valid if batch["status"] == "rejected" else 0,
                 "issue_counts": dict(sorted(counts.items())),
             }
+
+    def quality_gate(
+        self, batch_id: str, *, max_invalid: str = "0", min_exportable: int = 1
+    ) -> dict[str, Any]:
+        """Check a consumer policy without changing the persisted batch decision."""
+        threshold = _threshold(max_invalid)
+        if type(min_exportable) is not int or not 0 <= min_exportable <= MAX_ROWS:
+            raise IntakeError(
+                "invalid_min_exportable", "Minimum exportable rows must be 0 to 10000"
+            )
+        summary = self.quality_summary(batch_id)
+        reasons = []
+        if summary["status"] != "committed":
+            reasons.append("batch_rejected")
+        if summary["quarantined_rows"] * threshold.denominator > (
+            summary["total_rows"] * threshold.numerator
+        ):
+            reasons.append("invalid_fraction_exceeded")
+        if summary["exportable_rows"] < min_exportable:
+            reasons.append("insufficient_exportable_rows")
+        summary["gate"] = {
+            "passed": not reasons,
+            "max_invalid": str(threshold),
+            "min_exportable": min_exportable,
+            "invalid_fraction": str(Fraction(summary["quarantined_rows"], summary["total_rows"])),
+            "reasons": reasons,
+        }
+        emit_event(
+            logger,
+            "quality_gate_checked",
+            batch_id=batch_id,
+            status="failed" if reasons else "passed",
+            row_count=summary["total_rows"],
+            error="quality_gate_failed" if reasons else None,
+        )
+        return summary

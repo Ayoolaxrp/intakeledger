@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.3
+
+- Added an opt-in consumer quality gate with exact invalid fractions, minimum
+  exportable rows, actionable JSON reasons and metadata events. Existing report-only
+  quality calls and ingestion/export decisions remain compatible.
+- Bound scientific threshold exponents before Fraction allocation to prevent small
+  inputs from requesting huge integer powers.
+- Added a real CLI/pipeline quality-gate demonstration to local verification and CI.
+
 These entries describe real repository changes, not production deployments.
 
 ## 0.2.2 - 2026-10-27

@@ -105,3 +105,41 @@ def test_secret_check_detects_patterns_without_live_credentials():
     assert module.inspect_text("gh" + "p_" + "x" * 35)
     assert module.inspect_text("-----BEGIN " + "PRIVATE KEY-----")
     assert not module.inspect_text("ordinary synthetic text")
+
+
+@pytest.mark.parametrize("value", ["1e-999999999", "0e999999999", "1E+1001", "1e-1_001"])
+def test_threshold_exponent_is_bounded_before_fraction_conversion(value, monkeypatch):
+    from intakeledger.ledger import _threshold
+
+    def forbidden_conversion(_):
+        raise AssertionError("Unbounded exponent reached Fraction")
+
+    monkeypatch.setattr("intakeledger.ledger.Fraction", forbidden_conversion)
+    with pytest.raises(IntakeError) as error:
+        _threshold(value)
+    assert error.value.code == "invalid_threshold"
+
+
+def test_bounded_scientific_thresholds_keep_exact_retry_identity(ledger):
+    from fractions import Fraction
+
+    from intakeledger.ledger import _threshold
+
+    assert _threshold("1e-1000") == Fraction(1, 10**1000)
+    assert _threshold("0e1000") == 0
+    options = dict(
+        source="synthetic", key="exponent", contract_name="shipments", contract_version=1
+    )
+    data = b'{"event_id":"bounded","units":1}'
+    batch = ledger.ingest(data, max_invalid="1e-4", **options)
+    assert ledger.ingest(data, max_invalid="1/10000", **options) == batch
+    with pytest.raises(IntakeError) as error:
+        ledger.replay(
+            batch["id"],
+            key="unsafe",
+            contract_name="shipments",
+            contract_version=1,
+            max_invalid="1e-1001",
+        )
+    assert error.value.code == "invalid_threshold"
+    assert ledger.health()["batches"] == 1

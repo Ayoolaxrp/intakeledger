@@ -152,3 +152,48 @@ records or field values and does not change a batch. Stage and terminal executio
 logs now include UTC timestamps; terminal failures include stable reason codes,
 execution ID, stage and generation. Exception messages are excluded. Database
 execution/event records remain authoritative; logs are operational diagnostics.
+
+
+## Consumer quality gates
+
+`quality BATCH_ID` keeps its existing report-only behavior and exit code 0.
+Use the opt-in gate before downstream processing:
+
+```text
+python -m intakeledger --db intake.db quality BATCH_ID --fail-on-threshold --max-invalid 1/100 --min-exportable 1
+```
+
+The library equivalent is `Ledger.quality_gate(batch_id, max_invalid="1/100",
+min_exportable=1)`. It returns the existing summary plus a `gate` object with
+`passed`, normalized `max_invalid`, exact `invalid_fraction`, `min_exportable`
+and ordered `reasons`. The CLI exits 0 on pass, 5 on policy failure, 2 on invalid
+policy. Gate options require `--fail-on-threshold`. Defaults are zero invalid rows
+and at least one exportable row. Fractions compare exactly; equality passes.
+Minimum exportable rows is an integer from 0 through 10,000. Scientific exponents
+are bounded to -1000 through 1000 before exact rational conversion.
+
+A rejected batch always fails, even with a looser consumer threshold. An all-invalid
+committed batch fails the default minimum; allowing an empty result requires
+explicit `--min-exportable 0`. Reasons distinguish stored rejection, excessive
+invalid fraction and insufficient exportable rows. Issue counts count individual
+issues; the invalid fraction counts rows once, even if several rules fail.
+
+This is an observation of immutable stored validation, not revalidation or a
+mutation of the ingestion decision. It cannot release a rejected batch, repair
+values, or prevent an independent process from calling export. Downstream callers
+must honor its exit code. Use replay with a new key/contract to change validation.
+Reports omit values and can be redirected to JSON files. Verbose logging emits a
+metadata-only `quality_gate_checked` event. Reports are deterministic for the same
+batch/policy; event timestamps are not. `python scripts/quality_gate_demo.py`
+exercises real CLI failures/passes, pipeline replay, retry and ancestry using a
+temporary synthetic database; the verifier and CI both run it.
+
+## Concrete lineage example
+
+For one input A, a replay stage produces B; a projection of B using A as a reference
+produces C. `lineage C` exports three nodes with kinds ingest/replay/derived and
+edges A->B (replay), B->C (derived), A->C (reference). B and C identify their parent
+execution/stage. A subsequent replay of C adds C->D (replay), preserving all three
+ancestors. Nodes sort by ID; edges sort by parent/child/kind. UUID lexical order is
+not execution order. `scripts/pipeline_demo.py` and the multi-hop tests demonstrate
+these relationships against SQLite. No edge asserts lineage outside this database.
