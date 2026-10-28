@@ -1,3 +1,116 @@
+# 68.6 evaluation follow-up - 2026-10-28
+
+Version **0.2.3**. Tested source **b544b7b3946ec2179096c9b3aeec7eff67781894**, branch
+`improve/quality-gates-offline`. Latest supplied DataFactor report: **68.6** overall.
+All nine category scores, discrepancies, priorities, costs and dependencies are in
+[EXTENDED_SCORE_AUDIT.md](EXTENDED_SCORE_AUDIT.md). The evaluated SHA is absent.
+No score of 70/80, offer or payment is predicted. The private email PDF is omitted.
+
+## Original problems, changes and tests
+
+| Problem | Implementation and files | Verification / remaining boundary |
+| --- | --- | --- |
+| `quality` reported rejected batches with exit 0 and offered no consumer policy | `Ledger.quality_gate` in ledger.py, opt-in CLI flags in cli.py, quality_gate_demo.py, verifier and CI. Exact invalid fraction, minimum exported rows, ordered reasons; rejected batches cannot be released | test_quality_gate.py checks exact boundary, multiple issues on one invalid row, report compatibility, no mutation, empty exports, invalid options, real CLI exits, privacy, persisted pipeline-rule rejection and retry reuse |
+| Short scientific thresholds could allocate enormous powers of ten | ledger._threshold rejects exponents beyond +/-1000 before Fraction conversion; text and canonical fraction capped at 64 characters | test_regressions.py uses a sentinel to prove dangerous values never reach Fraction; safe exact notation/retry identity preserved; no huge allocation performed during testing |
+| Scientific thresholds could pass initial validation but fail after canonical pipeline normalization | Reject canonical fractions longer than the accepted input bound, before persisting execution; document intentional numeric resource limits | Regression tests reject 1e-62 and 1e-1000, round-trip 1e-61 through Pipeline.from_dict and execute it. Normal 16-place decimal threshold comparison still tested |
+| Full development environment required for simple test execution; offline setup unproven | requirements-test.in/.lock generated with uv 0.12.0, constrained to unchanged dev lock; lock.py/check_lock.py enforce pins/hashes/roots. Test closure has 7 active distributions on this Windows host vs 43 full tools | Drift tests cover altered versions/hashes, missing package and incompatible input. Complete fresh no-index/no-cache install and pip check passed, then every test ran |
+| Accidental networking could enter tests or child Python processes | Test-only sitecustomize socket guard plus session fixture/cli_env propagation; offline_tests.py exports tracked HEAD, creates a new venv and records actual failures/results | test_offline_verification.py blocks DNS/TCP/UDP and child Python; stale-success replacement tested. This is a Python regression guard, not OS/container network isolation |
+| Offline checks/gate demo could be omitted from CI; source package could omit test lock | ci.yml adds separate wheel preparation/offline execution plus gate demo; check_ci.py requires them. MANIFEST.in/package_smoke.py include and byte-check all five dependency files | Semantic negative tests reject disabled/no-op checks; missing/tampered package tests expanded; actual wheel install, source rebuild and installed quality gate passed |
+| Documentation/inventory had stale or incomplete setup statements | README, DEVELOPMENT, PIPELINES, VALIDATION, OBSERVABILITY, ARCHITECTURE, KNOWN_LIMITATIONS, CHANGELOG, THIRD_PARTY and HANDOFF updated | Concrete ancestry example, offline prerequisites, consumer policy boundaries, logs, supported pip workflow and current ownership/publication facts. Markdown local links checked |
+
+No runtime package, database migration, distributed service, orchestration framework,
+container, dashboard or empty environment template was added. Existing tests and
+assertions remain; **41 cases added**, taking 171 to 212. Raw records remain synthetic.
+The existing `quality` report shape/exit is preserved unless gating is explicitly
+requested. Very small non-roundtrippable thresholds now fail early; this is a
+justified resource/correctness restriction, not a schema change.
+
+## Commands actually executed
+
+- `git status --short`, history, tracked dependency/configuration paths, `git fetch
+  origin`, public repository/actions/check annotations: baseline main 018275e,
+  repository ID 1431555822 owned by ycent, application verify run 40560106454 passed.
+- Baseline `python scripts/verify.py --security`: 15 gates passed, 171 tests,
+  94% combined statement/branch coverage.
+- Targeted regressions/ledger: 55 passed. Gate/regression/audit checks: 49 passed;
+  gate module after CI guard: 18 passed. Broader targeted remediation set: 73 passed;
+  final offline-tooling module: 11 passed. These are overlapping runs, not additive
+  test counts. Initial unquoted YAML `:all:` and overly strict canonical threshold
+  bounds failed tests and were corrected; assertions were retained.
+- `uv pip compile requirements-test.in --constraint requirements-dev.lock --universal
+  --python-version 3.11 --generate-hashes --output-file requirements-test.lock`:
+  succeeded. No full development lock versions/hashes changed.
+- `python -m pip download --require-hashes --only-binary=:all: -r requirements-test.lock
+  --dest .test-wheels`: succeeded while connected. This preparation is not offline.
+- `python scripts/offline_tests.py --wheelhouse .test-wheels`: **exit 0**; tracked
+  export of b544b7b, fresh venv, hash installation from local wheels with
+  no index/cache, pip check and **212 tests passed in 47.82s**. Details in
+  [OFFLINE_TESTS.json](OFFLINE_TESTS.json). No container/firewall isolation claimed.
+- `python scripts/clean_checkout.py`: **exit 0**; independent tracked export of the
+  same revision, fresh venv, full hash install, editable install and full verifier
+  with security all passed. Details in [CLEAN_CHECKOUT.json](CLEAN_CHECKOUT.json).
+- Fresh full suite: **212 passed in 43.68s**, **94%** combined statement/branch
+  coverage (957 statements, 404 branches; 90% floor preserved). Timings describe
+  these test runs, not throughput benchmarks or production performance.
+- All **16** verifier gates exited 0: lock consistency, dependency inventory,
+  Ruff lint, format, strict mypy (9 runtime modules), tests, coverage, repository
+  heuristic, wheel/sdist build, installed package/source rebuild, pipeline demo,
+  quality-gate demo, pip check, semantic CI validation, Bandit and pip-audit.
+- Bandit found no issues; pip-audit reported no known vulnerabilities at query time.
+  The bounded repository heuristic checked 87 files with no findings. These are
+  not independent security or exhaustive Git-history secret audits.
+- Source release contains exact bytes for both input/lock pairs and the security
+  include. Development lock SHA-256 remains
+  `bfc52a71565412c47f5464c329cf990f13348e3f49b49ecae025a8e091054388`;
+  test lock is `49cb6e4dd2e4c2a9a3010f57853f7000ede57218f46e952151f7a3d1dabc46da`.
+- Reviewed source/test/tooling diff and `git diff --check`; local Markdown link
+  check found no broken README/docs targets. Final evidence/docs commit follows
+  the tested source; no runtime/tooling changes occur in that evidence commit.
+
+## Publication and remaining issues
+
+The previous 0.2.2 work is published under ycent and its hosted application verify
+run succeeded: https://github.com/ycent/intakeledger/actions/runs/40560106454.
+That supersedes the unpublished statements in older dated reports below.
+
+The new branch push was attempted with terminal prompts disabled and **failed**:
+Git for Windows could not launch the GitHub CLI credential helper
+(NtCreateDirectoryObject, 0xC0000022 / No child processes), then could not read a
+username. `gh auth status` earlier in this session also reported an invalid token.
+The 0.2.3 changes are committed locally; no new branch publication, PR or hosted
+matrix success is claimed. Use a working authenticated host terminal to push
+`improve/quality-gates-offline`, open a PR into ycent/main and check hosted CI.
+Do not push main directly or force-push. No credentials were read or extracted.
+
+Dependabot is already configured for pip/Actions. Actual pip updater run 40675941587
+failed. Public annotations only expose a generic updater error and link to an
+owner-only diagnostic: https://github.com/ycent/intakeledger/network/updates/1660290944.
+Its root cause remains unknown; writing more YAML is not evidence of fixing it.
+The new CI matrix is validated locally but awaits hosted execution after publication.
+
+The evaluator's absent-lock inference still conflicts with tracked files and clean
+install/package evidence. Offline preparation requires matching pre-downloaded
+wheels. The socket guard does not constrain native programs or -S/-I interpreters.
+No independent security review, workload benchmark, power-loss testing, external
+lineage/warehouse connector, production adoption or sustained multi-author history
+was invented. Legal ownership and project licence approval remain owner decisions;
+GitHub repository ownership is not proof of IP rights.
+
+## Commercial recommendation
+
+The additional value is enforceable, inspectable consumer quality policy and
+reproducible isolated testing, plus two concrete numeric-input fixes. These changes
+are evidenced by real CLI/SQLite behavior and a fresh installed package, not code
+volume. Publish/review this branch, obtain green hosted CI, and request a fresh
+DataFactor evaluation of the merged SHA before further feature expansion. The
+cheapest useful additional investigation is the owner-only Dependabot error and,
+if lock detection still fails, asking DataFactor to inspect the exact paths/hashes
+and clean-install report. A new evaluated SHA/report, a reproducible defect or a
+real integration requirement would justify changing this recommendation. No
+submission, message, agreement, licence grant or paid service was performed.
+
+---
+
 # Evaluation-driven remediation - 2026-10-27
 
 Version **0.2.2**. Tested source: **7abc45d88d97ca9aa66c21a1381d9cf2638c101f**.

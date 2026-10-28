@@ -1,3 +1,16 @@
+# Current quality gate - 2026-10-28
+
+IntakeLedger 0.2.3 source `b544b7b` passes all 16 full verification gates and a
+separate fresh offline setup, with 212 tests and 94% combined coverage. The full
+results, numeric-input corrections, consumer gate semantics and unresolved hosted
+publication/authentication status are in [REMEDIATION_REPORT.md](REMEDIATION_REPORT.md).
+The latest supplied score is 68.6, not a prediction for this revision. New hosted
+CI, owner-only Dependabot diagnosis, legal rights/licence approval and independent
+security/load/power-loss review remain unverified. No new publication or commercial
+licence grant is claimed. The original audit below is retained as historical evidence.
+
+---
+
 > Historical 0.1 audit. The 2026-10-24 remediation and executed results in
 > [REMEDIATION_REPORT.md](REMEDIATION_REPORT.md) supersede current-state claims here.
 > Public visibility was owner-authorized; no licence grant has been approved.

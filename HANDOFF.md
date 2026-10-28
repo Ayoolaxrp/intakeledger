@@ -1,40 +1,41 @@
 # IntakeLedger handoff
 
 ## Where we stopped
-Updated 2026-10-27. Version 0.2.2. Do not use Ponytail.
+Updated 2026-10-28. Version 0.2.3. Do not use Ponytail. No subagents were used.
 
-Read the owner-provided DataFactor email PDF: latest overall 65.7; full nine-category
-breakdown and pre-change plan in reports/EXTENDED_SCORE_AUDIT.md. The PDF contains
-contact details and was not committed. Its evaluated SHA is unknown. No score or
-payout promise, fabricated contributor/history or DataFactor submission was made.
+Canonical repo: ycent/intakeledger (same ID 1431555822); origin already points there.
+Published main 018275e includes the previous 0.2.2 work. Its hosted application
+verify run 40560106454 passed. The newest supplied DataFactor PDF reports 68.6;
+full nine-category pre-change audit is at the top of EXTENDED_SCORE_AUDIT.md.
+Private original PDF omitted; evaluated SHA unknown. No score/payout guarantee.
 
-Implemented native structured LogRecord events with JSON-message compatibility,
-scoped metadata-only JSON verbose CLI output, host/root handler preservation,
-source-package lock-byte verification, clear clean setup, validation/scope docs and
-real changelog. No runtime packages, schema change, orchestrator or external service.
-Code commits: 48bc299 (logging/tests/docs), 7abc45d (release bundle/tests/onboarding).
-The preceding audit commit is fdc1009. Tests were paired with their real changes.
+Branch: improve/quality-gates-offline. Genuine local commits:
+- 19f080b: audit against current 68.6 feedback.
+- d27576d: opt-in consumer gate, safe metadata event, real CLI demo/tests, exponent bound.
+- 4915214: canonical threshold round-trip validation and regressions.
+- b544b7b: constrained minimal test lock, socket-denied tests/children, clean offline
+  helper, CI/package guards and actual documentation.
+- Following evidence commit: current reports/handoff only; no runtime changes.
 
-Verified on a new tracked export/venv of 7abc45d: hash install, editable install and
-all 15 full verifier gates passed. 171 tests, 94% combined coverage; original 158
-preserved. Strict mypy (nine modules), lint/format, package build/installed CLI and
-pipeline/lineage, source rebuild, real demo, pip check, semantic CI, Bandit and
-pip-audit passed. See reports/REMEDIATION_REPORT.md and CLEAN_CHECKOUT.json.
-The source package demonstrably includes exact requirements-dev.in/.lock/security
-bytes. The provider's missing-lock inference conflicts with this proof; do not
-add arbitrary locks or change architecture just to match its scanner.
+Both clean verifications tested b544b7b3946ec2179096c9b3aeec7eff67781894:
+- clean_checkout.py: fresh full hash install, editable install, all 16 verifier gates
+  including Bandit/pip-audit; 212 tests, 94% coverage, package build/installed workflow.
+- offline_tests.py --wheelhouse .test-wheels: fresh tracked export and venv, 7 packages
+  from pre-downloaded wheels with no index/cache, pip check, 212 tests. Python socket
+  guard is not OS isolation. Wheels are ignored; prepare separately with pip download.
+All original 171 tests/assertions remain. Runtime dependencies remain zero/schema 2.
+See CLEAN_CHECKOUT.json, OFFLINE_TESTS.json and REMEDIATION_REPORT.md for exact proof.
 
-Last independently observed public main: 396c667, hosted run 40381082305 successful.
-This is not hosted verification of new 0.2.2. Both authorized push attempts failed
-(configured GitHub CLI helper and native credential-manager override): Git for
-Windows could not launch the helper child process (NtCreateDirectoryObject,
-0xC0000022), then reported password unavailable. gh also reports an invalid session
-token. New 0.2.2 commits remain local; host-side authenticated PowerShell can push.
-Never force-push or extract tokens. Working tree is clean after the evidence commit.
+Push of this branch failed: Git for Windows could not launch gh credential helper
+(NtCreateDirectoryObject 0xC0000022 / No child processes); terminal prompts disabled.
+gh auth status also reported invalid session token. No 0.2.3 push/PR/hosted CI claimed.
+Do not extract credentials or force push. New owner means branch + PR, not direct main.
 
-Next: publish under existing owner authorization when authentication works, verify
-new hosted CI, then have the owner request a fresh evaluation of that exact SHA.
-If lock detection still fails, show paths, SHA, lock hashes and clean installation
-results to DataFactor. Only a new evaluation can confirm a score change. Additional
-frameworks/cosmetic history are not justified. Owner rights/licence decision,
-independent security review, resource/load and power-loss testing remain open.
+Next: from a working authenticated host terminal, push this branch and open a PR
+into ycent/main. Verify hosted checks, merge only with owner authorization, then
+have the owner re-score that exact merged SHA. Do not submit to DataFactor or sign
+anything without authorization. No speculative framework/connector expansion.
+Dependabot pip updater 40675941587 failed; its root cause requires the owner-only
+log at /ycent/intakeledger/network/updates/1660290944. Config already exists.
+Licence/IP rights, independent security review, workload and power-loss evidence
+remain open. Only a new evaluation can establish whether score 70 is reached.

@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-28T15:28:49.477366+00:00",
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "venv",
+      "exit_code": 0,
+      "output_tail": ""
+    },
+    {
+      "check": "offline_hash_install",
+      "exit_code": 0,
+      "output_tail": "Looking in links: c:\\Users\\User\\Projects\\intakeledger\\.test-wheels\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\colorama-0.4.6-py2.py3-none-any.whl (from -r requirements-test.lock (line 3))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\iniconfig-2.3.0-py3-none-any.whl (from -r requirements-test.lock (line 9))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\packaging-26.0-py3-none-any.whl (from -r requirements-test.lock (line 15))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\pluggy-1.6.0-py3-none-any.whl (from -r requirements-test.lock (line 22))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\pygments-2.21.0-py3-none-any.whl (from -r requirements-test.lock (line 28))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\pytest-9.0.3-py3-none-any.whl (from -r requirements-test.lock (line 34))\nProcessing c:\\users\\user\\projects\\intakeledger\\.test-wheels\\pyyaml-6.0.3-cp311-cp311-win_amd64.whl (from -r requirements-test.lock (line 40))\nInstalling collected packages: pyyaml, pygments, pluggy, packaging, iniconfig, colorama, pytest\nSuccessfully installed colorama-0.4.6 iniconfig-2.3.0 packaging-26.0 pluggy-1.6.0 pygments-2.21.0 pytest-9.0.3 pyyaml-6.0.3\n"
+    },
+    {
+      "check": "dependency_consistency",
+      "exit_code": 0,
+      "output_tail": "No broken requirements found.\n"
+    },
+    {
+      "check": "offline_tests",
+      "exit_code": 0,
+      "output_tail": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n....................................................................     [100%]\n212 passed in 47.82s\n"
+    }
+  ],
+  "source": "git archive HEAD; fresh venv; no index/cache; Python socket guard",
+  "revision": "b544b7b3946ec2179096c9b3aeec7eff67781894"
+}
