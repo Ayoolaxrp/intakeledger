@@ -10,9 +10,9 @@ from packaging.utils import canonicalize_name
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def validate(root=ROOT):
+def read_lock(path):
     locked = {}
-    text = (root / "requirements-dev.lock").read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
     for block in text.replace("\\\n", " ").splitlines():
         block = block.strip()
         if not block or block.startswith("#"):
@@ -29,7 +29,14 @@ def validate(root=ROOT):
         name = canonicalize_name(requirement.name)
         if name in locked:
             raise ValueError("Duplicate active lock entry")
-        locked[name] = specs[0].version
+        locked[name] = (specs[0].version, frozenset(h.strip() for h in hashes))
+    if not locked:
+        raise ValueError("Lock must not be empty")
+    return locked
+
+
+def validate(root=ROOT):
+    locked = {name: value[0] for name, value in read_lock(root / "requirements-dev.lock").items()}
     inputs = (root / "requirements-dev.in").read_text().splitlines()
     metadata = tomllib.loads((root / "pyproject.toml").read_text())
     for line in inputs + metadata["build-system"]["requires"]:
@@ -42,10 +49,26 @@ def validate(root=ROOT):
         version = locked.get(canonicalize_name(requirement.name))
         if version is None or version not in requirement.specifier:
             raise ValueError(f"Input/build constraint differs from lock: {requirement.name}")
-    if not locked:
-        raise ValueError("Lock must not be empty")
     return len(locked)
+
+
+def validate_test_lock(root=ROOT):
+    development = read_lock(root / "requirements-dev.lock")
+    tests = read_lock(root / "requirements-test.lock")
+    if any(development.get(name) != entry for name, entry in tests.items()):
+        raise ValueError("Test lock must use the development lock's versions and hashes")
+    for line in (root / "requirements-test.in").read_text().splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        requirement = Requirement(line)
+        if requirement.marker and not requirement.marker.evaluate():
+            continue
+        version = tests.get(canonicalize_name(requirement.name), (None,))[0]
+        if version is None or version not in requirement.specifier:
+            raise ValueError("Test input differs from test lock")
+    return len(tests)
 
 
 if __name__ == "__main__":
     print(f"Validated {validate()} active hash-locked packages against inputs and build pins")
+    print(f"Validated {validate_test_lock()} active test packages as a consistent lock subset")

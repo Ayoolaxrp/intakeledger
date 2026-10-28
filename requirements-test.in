@@ -1,0 +1,4 @@
+# Test execution only; versions constrained by requirements-dev.lock.
+pytest==9.0.3
+PyYAML>=6.0.2
+packaging

@@ -23,6 +23,9 @@ def validate(workflow):
         "Coverage": "python -m coverage report --fail-under=90",
         "Lock consistency": "python scripts/check_lock.py",
         "Quality gate demo": "python scripts/quality_gate_demo.py",
+        "Prepare test wheels": "python -m pip download --require-hashes --only-binary=:all: "
+        "-r requirements-test.lock --dest .test-wheels",
+        "Offline tests": "python scripts/offline_tests.py --wheelhouse .test-wheels",
     }
     steps = {step.get("name"): step for step in workflow["jobs"]["quality"]["steps"]}
     for name, command in expected.items():

@@ -27,6 +27,25 @@ def main():
         check=True,
     )
 
+    subprocess.run(
+        [
+            "uv",
+            "pip",
+            "compile",
+            "requirements-test.in",
+            "--constraint",
+            "requirements-dev.lock",
+            "--universal",
+            "--python-version",
+            "3.11",
+            "--generate-hashes",
+            "--output-file",
+            "requirements-test.lock",
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+
 
 if __name__ == "__main__":
     main()

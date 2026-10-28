@@ -3,7 +3,7 @@ IntakeLedger turns a local JSONL feed into an inspectable intake ledger. It vali
 
 Use it for periodic partner exports and offline data checks. It is a Python library and CLI with SQLite persistence and no third-party runtime packages.
 
-The published 0.2.1 revision passed [hosted CI](https://github.com/Ayoolaxrp/intakeledger/actions/runs/40201420345)
+The published 0.2.2 revision passed [hosted CI](https://github.com/ycent/intakeledger/actions/runs/40560106454)
 on Windows and Linux with Python 3.11 and 3.12, including security checks. See
 [the remediation report](reports/REMEDIATION_REPORT.md) for revision-specific evidence,
 test results and remaining limitations. Engineering checks do not predict a licensing offer.
@@ -107,3 +107,38 @@ The [extended audit](reports/EXTENDED_SCORE_AUDIT.md) checks the latest evaluato
 findings against repository evidence. Release checks now enforce direct-input/build
 lock consistency and reject ineffective CI gates; failed tool launches/timeouts
 produce fresh failed evidence rather than leaving an older green report.
+
+
+## Enforce a consumer quality policy
+
+```text
+python -m intakeledger --db intake.db quality BATCH_ID --fail-on-threshold --max-invalid 1/100 --min-exportable 1
+python scripts/quality_gate_demo.py
+```
+
+The gate exits 5 with JSON reasons when the policy fails. It cannot release a
+previously rejected batch or change stored validation. Equality at the threshold
+passes, using exact arithmetic. Plain `quality BATCH_ID` remains report-only.
+See [pipeline semantics and a lineage example](docs/PIPELINES.md).
+
+## Tests without network access
+
+`requirements-dev.lock` is the authoritative pip hash lock for development, build
+and security tools. `requirements-test.lock` is a generated smaller subset using
+the same versions/hashes, for the entire pytest suite only. Both are tracked at
+repository root and checked in source releases; this project uses no other package
+manager and needs no Poetry or uv project lock. uv is only the regeneration tool.
+
+Prepare wheels while connected, using the Python/OS intended for the offline run:
+
+```text
+python -m pip download --require-hashes --only-binary=:all: -r requirements-test.lock --dest .test-wheels
+python scripts/offline_tests.py --wheelhouse .test-wheels
+```
+
+The second command exports committed HEAD, creates an empty venv, installs with
+`--no-index --no-cache-dir --require-hashes`, and runs all tests with Python network
+calls blocked. It records actual results in `reports/OFFLINE_TESTS.json`. Wheel
+preparation needs network/cache access; offline installation requires those wheels
+already present. No claim of an internet-free first download is made. For uncommitted
+source and manual offline commands, see [development](docs/DEVELOPMENT.md).

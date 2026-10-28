@@ -2,6 +2,12 @@
 
 ## 0.2.3
 
+- Added a minimal generated test lock constrained to the development lock, with
+  drift and source-bundle checks. Fresh offline verification uses pre-downloaded
+  wheels, no index/cache, and a Python socket guard for tests and child processes.
+- Added separate wheel preparation/offline execution steps to the CI matrix.
+- Rejected non-roundtrippable normalized thresholds before creating executions.
+
 - Added an opt-in consumer quality gate with exact invalid fractions, minimum
   exportable rows, actionable JSON reasons and metadata events. Existing report-only
   quality calls and ingestion/export decisions remain compatible.

@@ -98,3 +98,57 @@ requirements-dev.lock and requirements-security.txt before rebuilding. Missing o
 changed files fail even if a wheel happened to build. The tool prints their hashes.
 See OBSERVABILITY.md for structured fields and CLI logging configuration boundaries,
 VALIDATION.md for request guards, and root CHANGELOG.md for release changes.
+
+
+## Tests-only and offline development (0.2.3)
+
+The full development lock remains authoritative. `requirements-test.in` declares
+pytest, PyYAML (workflow tests), and packaging (lock tests). The generated test lock
+includes their complete dependency closure, constrained by the development lock.
+`scripts/lock.py` regenerates both; `scripts/check_lock.py` rejects changed pins,
+hashes, missing roots and drift. No runtime dependencies were added. Test wheels
+are ignored and are not distributed with source archives. Source smoke verifies
+all five dependency input/lock/security files byte for byte.
+
+First, with connectivity on the intended platform and Python version:
+
+```powershell
+python -m pip download --require-hashes --only-binary=:all: -r requirements-test.lock --dest .test-wheels
+```
+
+Then offline, to test the current working tree (including uncommitted edits):
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip --isolated --no-cache-dir --disable-pip-version-check install --no-index --find-links .test-wheels --only-binary=:all: --require-hashes -r requirements-test.lock
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = '1'
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Use `.venv/bin/python` on Linux and `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` before its
+pytest command. The tests import `src` directly; no build backend, linter, scanner,
+editable installation or external service is needed for this path. It does not run
+coverage, builds or advisory queries. Use a fresh venv for this recipe; use the
+full development lock for `scripts/verify.py --security` and all release checks.
+
+For a machine-readable clean-source proof, commit intended changes and run
+`python scripts/offline_tests.py --wheelhouse .test-wheels`. It exports tracked HEAD
+rather than trusting the working tree, creates a disposable empty venv and records
+revision, setup/test exit codes and failures in reports/OFFLINE_TESTS.json. A missing
+or incomplete wheelhouse fails; it does not fetch missing packages or reuse a prior
+success report. CI prepares wheels in a separate connected step, then runs this
+check for each Windows/Linux and Python 3.11/3.12 matrix entry.
+
+The autouse test guard denies Python DNS/connect/send operations and propagates to
+normal child Python processes via test-only sitecustomize. It is a regression guard,
+not an OS firewall or malicious-code sandbox: native programs or Python launched
+with -S/-I could bypass it. No container network isolation was tested. Pytest
+plugins are disabled during verification; unrelated plugins are not in scope.
+Wheelhouses can depend on OS/architecture/Python version. See pip's official
+[repeatable installs](https://pip.pypa.io/en/stable/topics/repeatable-installs/).
+
+Dependency automation already exists in .github/dependabot.yml (pip and Actions).
+The pip job failed on 2026-10-28; public annotations require repository write access
+to view its detailed diagnostic. Do not claim that config validation fixes this
+hosted failure. The owner can inspect the failed job and regenerate both locks
+when inputs change. Local CLI authentication was invalid during this audit.

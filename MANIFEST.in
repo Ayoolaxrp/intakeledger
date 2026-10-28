@@ -1,5 +1,6 @@
 include README.md CHANGELOG.md PROVENANCE.md THIRD_PARTY.md .editorconfig .gitattributes .gitignore
 include requirements-dev.in requirements-dev.lock requirements-security.txt
+include requirements-test.in requirements-test.lock
 include HANDOFF.md
 recursive-include lessons *.md
 recursive-include src *.py *.sql py.typed

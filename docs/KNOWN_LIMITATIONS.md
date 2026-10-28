@@ -40,3 +40,22 @@ checks now verify exact lock material; the evaluated SHA and scanner-bundle/pars
 cause remain unknown. No score uplift has been measured. Logs are not transactional
 or exactly-once delivery. Concurrent embedded CLI main calls are unsupported; use
 host-configured library logging or separate CLI processes. See OBSERVABILITY.md.
+
+
+## Current 0.2.3 work and 2026-10-28 report
+
+The latest supplied evaluation is **68.6**, superseding the earlier dated values
+above. Its category scores and current discrepancies are recorded at the top of
+EXTENDED_SCORE_AUDIT.md. The evaluated SHA remains unspecified; a missing-lock
+scanner result still conflicts with tracked files and executed clean installs.
+No projected uplift is claimed. GitHub currently identifies ycent as repo owner.
+
+Consumer gates now enforce an optional exact invalid fraction and minimum exported
+row count. They observe stored results; callers must honor the CLI exit code.
+There is still no external scheduler, cross-system lineage or warehouse connector.
+Tiny thresholds whose normalized fraction exceeds 64 characters now fail early.
+Offline pytest setup requires a matching pre-downloaded wheelhouse. Python socket
+denial is not OS/container isolation. The actual Dependabot pip updater failure
+needs its owner-only diagnostic log; configuration exists but health is unverified.
+Project licensing/ownership rights and independent security/load/power-loss review
+remain unresolved. GitHub ownership transfer alone does not establish IP rights.

@@ -16,7 +16,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def verify_dependency_bundle(extracted, expected_root=ROOT):
     """Release source must contain the exact dependency inputs used by CI."""
     digests = {}
-    for name in ("requirements-dev.in", "requirements-dev.lock", "requirements-security.txt"):
+    for name in (
+        "requirements-dev.in",
+        "requirements-dev.lock",
+        "requirements-security.txt",
+        "requirements-test.in",
+        "requirements-test.lock",
+    ):
         bundled = extracted / name
         if not bundled.is_file():
             raise RuntimeError(f"Source archive is missing dependency material: {name}")
@@ -89,6 +95,8 @@ ledger.register(Contract.from_dict({"name":"smoke","version":1,
                                    "fields":{"id":{"type":"integer"}}}))
 batch = ledger.ingest(b'{"id":1}', source="package", key="one",
                       contract_name="smoke", contract_version=1)
+if not ledger.quality_gate(batch["id"])["gate"]["passed"]:
+    raise RuntimeError("Installed quality gate failed")
 if ledger.export(batch["id"]) != [{"id":1}]:
     raise RuntimeError("Installed export failed")
 pipeline = Pipeline.from_dict({"name":"smoke","version":1,"stages":[

@@ -1,4 +1,5 @@
 import os
+import runpy
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,19 @@ def ledger(tmp_path, contract):
 @pytest.fixture
 def cli_env():
     environment = os.environ.copy()
-    environment["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+    source = str(Path(__file__).resolve().parents[1] / "src")
+    environment["PYTHONPATH"] = os.pathsep.join([source, environment.get("PYTHONPATH", "")])
     environment["PYTHONUTF8"] = "1"
     return environment
+
+
+@pytest.fixture(scope="session", autouse=True)
+def offline_network():
+    guard = Path(__file__).resolve().parent / "_offline"
+    policy = runpy.run_path(str(guard / "sitecustomize.py"))
+    with pytest.MonkeyPatch.context() as patch:
+        for target, name in policy["TARGETS"]:
+            patch.setattr(target, name, policy["deny_network"])
+        patch.setenv("INTAKELEDGER_TEST_OFFLINE", "1")
+        patch.setenv("PYTHONPATH", os.pathsep.join([str(guard), os.environ.get("PYTHONPATH", "")]))
+        yield

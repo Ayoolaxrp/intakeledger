@@ -3,7 +3,13 @@ from pathlib import Path
 
 import pytest
 
-FILES = ("requirements-dev.in", "requirements-dev.lock", "requirements-security.txt")
+FILES = (
+    "requirements-dev.in",
+    "requirements-dev.lock",
+    "requirements-security.txt",
+    "requirements-test.in",
+    "requirements-test.lock",
+)
 
 
 def checker():

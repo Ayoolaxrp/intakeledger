@@ -76,3 +76,20 @@ canonical JSON messages. Verbose CLI mode scopes a JSON handler to the intakeled
 namespace and restores its settings on exit; root handlers remain owned by the host.
 Only approved metadata is formatted. SQLite events remain authoritative; log delivery
 is not transactional. See OBSERVABILITY.md.
+
+
+## Consumer policy boundary (0.2.3)
+
+`Ledger.quality_gate` evaluates persisted aggregate validation counts using the
+same bounded exact-fraction parser as ingestion and pipelines. It returns a policy
+decision and safe reasons; it performs no data mutation and does not supersede the
+stored whole-batch export gate. CLI gating is opt-in, preserving existing summary
+consumers. At least one exportable row is required by default to distinguish an
+all-quarantined success from useful output. The in-process engine's existing stage
+gates still own durable acceptance and retry behavior. No migration is needed.
+
+Development dependencies have a minimal test subset constrained to the full lock.
+Clean offline verification exercises actual source/tests in a new environment;
+no-index/no-cache installation and Python socket denial provide separate checks
+of package availability and accidental runtime networking. The guard is not an
+OS-level security sandbox. Full release/security verification remains separate.

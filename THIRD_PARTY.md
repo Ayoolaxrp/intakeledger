@@ -1,9 +1,12 @@
 # Third-party dependency inventory
 Runtime Python dependencies: none. CPython and the linked SQLite library are required platform components. No source, assets, or datasets from another repository are included.
 
-The development lock pins these direct tools: setuptools 79.0.1, build 1.6.0, pytest 8.3.3, coverage 7.15.4, Ruff 0.6.5, and mypy 1.11.2. Their transitive dependencies are pinned separately in the lock. Local package metadata identifies setuptools as MIT, build as MIT, pytest as MIT, coverage as Apache-2.0, Ruff as MIT, and mypy as MIT. A machine-readable local inventory is generated during verification.
-
-Security checks optionally install Bandit 1.9.4 under Apache-2.0 and pip-audit 2.10.1 under Apache-2.0. Official project pages were consulted on 2026-10-23. Their transitive packages resolve separately from the core development lock and are not a complete hash-locked environment.
+The authoritative versions and installed licence metadata are recorded in
+requirements-dev.lock and reports/DEPENDENCIES.json. Direct tools are setuptools,
+build, pytest, coverage, Ruff, mypy, Bandit, pip-audit and PyYAML. Security tools
+share the complete hash-locked development environment. requirements-test.lock is
+a smaller constrained subset for pytest, YAML workflow parsing and packaging
+requirement checks; it introduces no new runtime or development package.
 
 This review checks dependency declarations and local package metadata, not every upstream file or every possible legal obligation. No dependencies are vendored or redistributed in the source archive. A future binary or container distribution needs review of the actual bundled interpreter, SQLite build, licences, and notices. No licence compatibility guarantee is made for an owner-selected project licence.
 
