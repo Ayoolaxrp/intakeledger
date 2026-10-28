@@ -56,7 +56,7 @@ def _label(value: str) -> None:
 
 def _threshold(value: str) -> Fraction:
     try:
-        if not isinstance(value, str) or len(value) > 32:
+        if not isinstance(value, str) or len(value) > 64:
             raise ValueError
         # Fraction allocates powers of ten for scientific notation. A short
         # exponent can request gigabytes, so bound it before any conversion.
@@ -64,7 +64,7 @@ def _threshold(value: str) -> Fraction:
         if exponent and abs(int(exponent.group(1))) > 1000:
             raise ValueError
         result = Fraction(value)
-        if not 0 <= result <= 1:
+        if not 0 <= result <= 1 or len(str(result)) > 64:
             raise ValueError
         return result
     except (ValueError, ZeroDivisionError) as exc:

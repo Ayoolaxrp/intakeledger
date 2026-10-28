@@ -197,3 +197,7 @@ execution/stage. A subsequent replay of C adds C->D (replay), preserving all thr
 ancestors. Nodes sort by ID; edges sort by parent/child/kind. UUID lexical order is
 not execution order. `scripts/pipeline_demo.py` and the multi-hop tests demonstrate
 these relationships against SQLite. No edge asserts lineage outside this database.
+
+The normalized numerator/denominator form must also fit 64 characters. This
+ensures accepted thresholds survive pipeline normalization and retry validation;
+values such as 1e-62 fail early with invalid_threshold rather than after planning.

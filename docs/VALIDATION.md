@@ -44,7 +44,11 @@ test_observability.py; no real customer records are bundled.
 
 
 Scientific-notation quality thresholds additionally restrict the exponent to
--1000 through 1000 before constructing a Fraction. A 32-character string alone
+-1000 through 1000 before constructing a Fraction. A character-limited string alone
 cannot bound the allocation from an enormous power of ten. Decimal/rational
 thresholds retain exact comparisons and normalized retry identity. Out-of-range
 exponents return `invalid_threshold` and do not write a batch.
+
+Threshold text and its normalized numerator/denominator form must each fit 64 characters. This
+ensures accepted thresholds survive pipeline normalization and retry validation;
+values such as 1e-62 fail early with invalid_threshold rather than after planning.

@@ -125,7 +125,7 @@ def test_bounded_scientific_thresholds_keep_exact_retry_identity(ledger):
 
     from intakeledger.ledger import _threshold
 
-    assert _threshold("1e-1000") == Fraction(1, 10**1000)
+    assert _threshold("1e-61") == Fraction(1, 10**61)
     assert _threshold("0e1000") == 0
     options = dict(
         source="synthetic", key="exponent", contract_name="shipments", contract_version=1
@@ -143,3 +143,53 @@ def test_bounded_scientific_thresholds_keep_exact_retry_identity(ledger):
         )
     assert error.value.code == "invalid_threshold"
     assert ledger.health()["batches"] == 1
+
+
+@pytest.mark.parametrize("threshold", ["1e-62", "1e-1000"])
+def test_threshold_rejects_non_roundtrippable_normalized_fraction(threshold):
+    from intakeledger import Pipeline
+
+    with pytest.raises(IntakeError) as error:
+        Pipeline.from_dict(
+            {
+                "name": "small",
+                "version": 1,
+                "stages": [
+                    {
+                        "name": "check",
+                        "operation": "replay",
+                        "contract": {"name": "shipments", "version": 1},
+                        "max_invalid": threshold,
+                    }
+                ],
+            }
+        )
+    assert error.value.code == "invalid_threshold"
+
+
+def test_scientific_threshold_roundtrips_through_pipeline_normalization(ledger):
+    from intakeledger import Pipeline, PipelineEngine
+
+    pipeline = Pipeline.from_dict(
+        {
+            "name": "small",
+            "version": 1,
+            "stages": [
+                {
+                    "name": "check",
+                    "operation": "replay",
+                    "contract": {"name": "shipments", "version": 1},
+                    "max_invalid": "1e-61",
+                }
+            ],
+        }
+    )
+    assert Pipeline.from_dict(pipeline.as_dict()) == pipeline
+    batch = ledger.ingest(
+        b'{"event_id":"small","units":1}',
+        source="synthetic",
+        key="small",
+        contract_name="shipments",
+        contract_version=1,
+    )
+    assert PipelineEngine(ledger).run(pipeline, batch["id"], "once")["status"] == "completed"
