@@ -1,3 +1,44 @@
+# Verified 68.6 feedback audit - 2026-10-28
+
+Source: owner-supplied four-page DataFactor email dated 2026-10-28, titled
+"intakeledger scored 68.6. Here's what gets it to offer territory". Read all four
+pages; the original contains contact details and is not committed. It identifies
+`ycent/intakeledger`, but does not identify the evaluated Git SHA. This supersedes
+older category scores below. The goals of 70 and 80 are not predicted outcomes.
+The provider's estimates are approximate; its scoring formula remains unknown.
+
+Inspected baseline: local and public main `018275e6c6135f60c2db914ffb185047b76c21aa`,
+clean before verification, repository ID 1431555822, owner ycent. All 15 existing
+`python scripts/verify.py --security` gates passed: 171 tests, 94% combined
+statement/branch coverage, strict typing, package build/smoke, real pipeline demo,
+Bandit and advisory scan. Public application workflow run 40560106454 succeeded.
+Dependabot pip update 40675941587 failed; public annotations only say updater error
+and require write access for the detailed log. Do not invent its cause or claim
+that dependency automation is healthy merely because its configuration exists.
+
+Costs are focused engineering estimates, not score estimates. Priorities combine
+engineering benefit, report relevance, confidence and cost.
+
+| Category / score | Report weaknesses | Verified state and additional weaknesses | Proposed improvement / cost | Dependencies / evidence / worth pursuing |
+| --- | --- | --- | --- | --- |
+| Architecture & Robustness / 78 | No metrics/error-tracking integration | Structured native events, health, atomic stages and recovery exist. No hosted metrics service; threshold parsing allows unbounded scientific exponents despite a 32-character limit | P0 bound exponent before exact rational allocation (0.25-0.5h); retain local architecture | Tests prove dangerous values never reach Fraction; ordinary exact boundaries preserved. Yes; external error tracking not justified |
+| Pipeline & Data Quality / 35 | No external orchestration, scheduling or cross-system lineage; recommends threshold gate | Local DAG/replay/backfill/rules and lineage exist. `quality` currently exits 0 even for rejected batches; no consumer-specific enforcement | P1 opt-in `quality --fail-on-threshold`, exact threshold override, minimum exportable rows, JSON reasons and safe event (1-2h) | Existing immutable summaries; CLI/library boundary, pipeline output, retry and no-mutation tests; real gate demo. Yes; framework/warehouse integration deferred |
+| Docs & Onboarding / 85 | No container or env example | No environment configuration required. Offline commands do not explain prior dependency acquisition; THIRD_PARTY and handoff have stale top-level statements | P1 document connected preparation then offline setup, concrete lineage graph, current handoff/provenance inventory (0.5-1h) | Actual offline/installed workflows; avoid implying pip can install absent artifacts offline. Yes; no empty env template/container |
+| Test Coverage / 82 | Existing nine modules, enforced 90 floor; recommends isolated offline execution | 171 baseline tests really pass, 94% local coverage differs from category score. No enforced guard against accidental network use in tests | P1 block Python socket/DNS operations for tests and child interpreters; test guard and isolated dependency installation (1-2h paired with tooling) | Minimal complete test dependency set and wheelhouse; retain all tests; full suite with guard. Yes |
+| Code Cleanliness / 88 | Strong lint/typing and small modules | No rewrite justified. Reuse existing Fraction parser/quality summary, avoid parallel validation engine | Retain strict Ruff/mypy, pair fixes with tests (included above) | Full static checks; no new runtime dependency. Yes |
+| Dependency Health / 55 | Scanner says no locks; cannot confirm Dependabot | Contradicted: three root dependency files and .github/dependabot.yml tracked; clean installation and sdist byte checks exist. Actual pip updater failed; no tests-only environment | P1 minimal test lock constrained by existing dev lock, drift/package checks, honest wheelhouse preparation; keep pip as sole supported installer (1-2h) | Resolver-generated hashes, fresh no-index/no-cache install, all tests, package inventory. Yes; no Poetry/uv project migration or arbitrary new runtime packages |
+| CI/CD Maturity / 85 | No deploy stage | Library/CLI needs no deployment. Published application CI passed; pip updater failed separately | P1 enforce real quality-gate demo and offline suite in existing matrix; semantic guard against skipping new checks (0.5h) | Local configuration tests/full verifier; hosted result after branch publication. Yes; deployment stage no |
+| Security Hygiene / 78 | Input validation detector empty | Detector misses custom guards; documentation maps them. New exponent allocation risk is real; raw data already excluded from diagnostics | P0 exponent bound; P1 safe gate events and network-denial test guard; repeat security audits (included above) | Regression tests before fraction construction, CLI rejection/privacy checks, Bandit/pip-audit. Yes |
+| History & Maintenance / 20 | 15 commits/3 days, one author, no releases/tags/production users | Age, adoption and limited authorship are real; no instant honest fix | Focused genuine feature/fix commits with tests, no backdating, fake contributors or delayed work for appearance (normal workflow) | Actual diff/history. Worth normal maintenance; not cosmetic activity |
+
+Order: baseline -> audit -> threshold resource fix -> enforceable quality gate ->
+minimal offline test setup/CI -> documentation -> full clean verification -> branch
+publication/PR if authentication permits. No direct main push under the new owner.
+No DataFactor submission, agreement or paid service is authorized in this work.
+A fresh evaluation of the published SHA is required to establish any score change.
+
+---
+
 # Verified feedback follow-up - 2026-10-27
 
 Owner-supplied DataFactor email PDF dated 2026-10-27 reports **65.7 overall**,
